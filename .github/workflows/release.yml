@@ -78,13 +78,16 @@ jobs:
   check:
     name: Format and tests
     needs: version
-    runs-on: ubuntu-22.04
+    # The image the upstream gate ran on (its default): the GPU tests need a software Vulkan.
+    runs-on: ubuntu-24.04
     timeout-minutes: 240
     env:
       CRAFT_FONTS_DIR: ${{ github.workspace }}/craft-fonts
-      # Match the gate the upstream project ran: a missing GPU or ffmpeg is an error, not a skip.
+      # As in the upstream gate: require the font build and a real GPU. The ffmpeg oracle tests
+      # are left to skip, exactly as upstream CI does: they need one particular ffmpeg build and
+      # are not part of CI (no ffmpeg is installed here).
+      CRAFT_FONTS_REQUIRED: "1"
       FILMCRAFT_REQUIRE_GPU: "1"
-      FILMCRAFT_REQUIRE_ORACLES: "1"
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
@@ -101,7 +104,7 @@ jobs:
           sudo apt-get install -y --no-install-recommends \
             pkg-config libxkbcommon-dev libwayland-dev libx11-dev libxcb1-dev \
             libxcursor-dev libxrandr-dev libxi-dev libfontconfig1-dev libfreetype-dev \
-            libasound2-dev libvulkan1 mesa-vulkan-drivers ffmpeg
+            libasound2-dev libvulkan1 mesa-vulkan-drivers
       - name: Install rustfmt
         run: rustup component add rustfmt
       - name: Install cargo-nextest
@@ -193,12 +196,18 @@ jobs:
   macos:
     name: macOS ${{ matrix.arch }}
     needs: version
-    runs-on: macos-15-intel
-    timeout-minutes: 180
     strategy:
       fail-fast: false
       matrix:
-        arch: [aarch64, x86_64]
+        include:
+          # Native per architecture: cross-compiling the arm64 bundle from an Intel
+          # runner failed, so build each arch on its own runner image.
+          - arch: aarch64
+            runner: macos-15
+          - arch: x86_64
+            runner: macos-15-intel
+    runs-on: ${{ matrix.runner }}
+    timeout-minutes: 180
     env:
       FILMCRAFT_VERSION: ${{ needs.version.outputs.version }}
       CRAFT_FONTS_DIR: ${{ github.workspace }}/craft-fonts
