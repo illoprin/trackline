@@ -56,7 +56,7 @@ pub fn show(app: &mut FilmcraftApp, ui: &mut egui::Ui, rect: Rect) {
         let label = crate::i18n::t(label);
         let g = ui.painter().layout_no_wrap(label.to_string(), Tokens::ui(13.0), t.text);
         let r = Rect::from_min_size(pos2(x, rect.min.y + y + 18.0), vec2(g.size().x + 44.0, 34.0));
-        let resp = ui.interact(r, egui::Id::unique(("imp-link", *id)), Sense::click()).on_hover_text(*url);
+        let resp = ui.interact(r, egui::Id::unique(("imp-link", *id)), Sense::click()).on_hover_text(*url).on_hover_cursor(egui::CursorIcon::PointingHand);
         app.auto.add(&format!("import.link.{}", id.trim_start_matches("help.")), r, label);
         let (bg, fg) = if primary {
             (if resp.hovered() { t.accent_hover } else { t.accent }, Color32::WHITE)

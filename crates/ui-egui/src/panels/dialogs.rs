@@ -477,9 +477,11 @@ fn about_tab(app: &mut FilmcraftApp, ui: &mut egui::Ui) {
     ui.add_space(14.0);
     // A blue link under each big icon.
     let blue = egui::Color32::from_rgb(90, 160, 255);
+    const CELL: egui::Vec2 = egui::vec2(108.0, 104.0);
     let mut icon_link = |ui: &mut egui::Ui, id: &str, icon: Icon, label: &str, url: &str, accent: bool| {
-        let (rect, resp) = ui.allocate_exact_size(egui::vec2(108.0, 104.0), egui::Sense::click());
-        let resp = resp.on_hover_text(url);
+        let (rect, resp) = ui.allocate_exact_size(CELL, egui::Sense::click());
+        // The whole cell is the link: show the address and a pointing hand on hover.
+        let resp = resp.on_hover_text(url).on_hover_cursor(egui::CursorIcon::PointingHand);
         app.auto.add(&format!("about.{id}"), rect, label);
         let ink = if accent { t.accent } else { t.text };
         let ir = egui::Rect::from_center_size(egui::pos2(rect.center().x, rect.top() + 40.0), egui::vec2(48.0, 48.0));
@@ -489,11 +491,22 @@ fn about_tab(app: &mut FilmcraftApp, ui: &mut egui::Ui) {
             links::open(app, ui.ctx(), url);
         }
     };
-    ui.horizontal_wrapped(|ui| {
-        icon_link(ui, "github", Icon::Code, tl!("Project on GitHub"), links::PROJECT, true);
-        icon_link(ui, "reportIssue", Icon::Info, tl!("Report an issue"), links::ISSUES, false);
-        icon_link(ui, "support", Icon::DonationAlerts, tl!("Support the author"), links::SUPPORT, false);
-        icon_link(ui, "youtube", Icon::YouTube, tl!("Author's channel"), links::YOUTUBE, false);
+    // One centred row: pad the left by half the slack, so the icons stay under the centred heading
+    // (and the logo) instead of drifting left when the window is wider than the row.
+    let row = [
+        ("github", Icon::Code, tl!("Project on GitHub"), links::PROJECT, true),
+        ("reportIssue", Icon::Info, tl!("Report an issue"), links::ISSUES, false),
+        ("support", Icon::DonationAlerts, tl!("Support the author"), links::SUPPORT, false),
+        ("youtube", Icon::YouTube, tl!("Author's channel"), links::YOUTUBE, false),
+    ];
+    let gap = ui.spacing().item_spacing.x;
+    let row_w = CELL.x * row.len() as f32 + gap * (row.len() as f32 - 1.0);
+    let pad = ((ui.available_width() - row_w) * 0.5).max(0.0);
+    ui.horizontal(|ui| {
+        ui.add_space(pad);
+        for (id, icon, label, url, accent) in row {
+            icon_link(ui, id, icon, label, url, accent);
+        }
     });
     ui.add_space(12.0);
     ui.vertical_centered(|ui| {
