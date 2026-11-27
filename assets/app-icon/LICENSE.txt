@@ -1,9 +1,9 @@
-FilmCraft app icon (filmcraft.svg and every file derived from it in this directory:
-filmcraft-small.svg, filmcraft-1024.png, filmcraft-macos-512.png, filmcraft.icns, filmcraft.ico,
-hicolor/, and apps/filmcraft-web/web/favicon.png).
+Trackline app icon (trackline.svg and every file derived from it in this directory:
+trackline-small.svg, trackline-1024.png, trackline-macos-512.png, trackline.icns, trackline.ico,
+hicolor/ru.illoprin.trackline.* and apps/filmcraft-web/web/favicon.png).
 
-Original artwork made for this project by the FilmCraft owner (Brandon Thomas) in ArtCraft, then
-vectorised. No third-party material. Licensed like the rest of FilmCraft, under either of
+Original artwork made for this project by the Trackline fork owner (plan/icon.svg). No third-party
+material. Licensed like the rest of Trackline, under either of
 
   * Apache License, Version 2.0 (https://www.apache.org/licenses/LICENSE-2.0)
   * MIT license (https://opensource.org/licenses/MIT)
@@ -11,3 +11,13 @@ vectorised. No third-party material. Licensed like the rest of FilmCraft, under 
 at your option.
 
 Regenerate the derived files with packaging/icons.sh.
+
+---
+
+The FilmCraft app icon files kept in this directory for reference (filmcraft.svg,
+filmcraft-small.svg, filmcraft-1024.png, filmcraft-macos-512.png, filmcraft.icns, filmcraft.ico,
+hicolor/*/apps/ai.storyteller.filmcraft.*) are the upstream FilmCraft artwork: original work made
+for the FilmCraft project by Brandon Thomas, vectorised from a drawing made in ArtCraft, and
+licensed under either the Apache License, Version 2.0 or the MIT license, at your option. They are
+not used by Trackline's builds or packaging (the ArtCraft marks they relate to are removed by
+forks, see docs/brand/LICENSE-brand.txt); they are retained only as upstream provenance.

@@ -769,7 +769,7 @@ fn custom(app: &mut FilmcraftApp, ui: &mut Ui, d: &mut SettingsDraft, name: &str
         "memoryInfo" => {
             let (used, budget) = app.frames.cache_usage();
             note(ui, &t, &tlf!("Decoded frames held for the monitors and thumbnails: {used} of {budget}.", used = mb(used as u64), budget = mb(budget as u64)));
-            note(ui, &t, tl!("FilmCraft keeps the rest of the RAM free for other applications."));
+            note(ui, &t, tl!("Trackline keeps the rest of the RAM free for other applications."));
         }
         "mediaCacheInfo" => {
             if d.cache_info.is_null() {
@@ -926,7 +926,7 @@ pub fn show(app: &mut FilmcraftApp, ctx: &egui::Context) -> bool {
         ui.horizontal(|ui| {
             ui.add_space(20.0);
             if button(app, ui, "settings.help", tl!("Help"), false) {
-                crate::links::open(app, ctx, &format!("{}/blob/main/docs/project-files.md#settings", crate::links::GITHUB));
+                crate::links::open(app, ctx, &format!("{}/blob/main/docs/project-files.md#settings", crate::links::UPSTREAM));
             }
             if button(app, ui, "settings.reset", tl!("Reset…"), false) {
                 // this category back to its defaults (OK applies it)

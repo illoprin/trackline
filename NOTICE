@@ -1,11 +1,22 @@
-FilmCraft
+Trackline
+Copyright (c) 2026 the Trackline fork contributors.
+Licensed under the MIT License or the Apache License, Version 2.0, at your option
+(LICENSE-MIT, LICENSE-APACHE).
+
+Trackline is an independent fork of FilmCraft, based on the original project at
+https://github.com/storytold/filmcraft by the ArtCraft Team and the FilmCraft contributors.
+Trackline is not an official FilmCraft or ArtCraft product, and is not made, sponsored, endorsed or
+supported by the ArtCraft Team. The upstream copyright, licence and third-party notices below
+apply unchanged to the code and assets inherited from FilmCraft.
+
+FilmCraft (upstream)
 Copyright (c) 2026 ArtCraft Team and the FilmCraft contributors.
 Licensed under the MIT License or the Apache License, Version 2.0, at your option
 (LICENSE-MIT, LICENSE-APACHE).
 
 The ArtCraft name, wordmark and logos in docs/brand/ are trademarks of the ArtCraft Team. They are
 not open source and are not covered by the license above; their terms are in
-docs/brand/LICENSE-brand.txt.
+docs/brand/LICENSE-brand.txt. They are not used by Trackline's builds (forks must remove them).
 
 Third-party material
 

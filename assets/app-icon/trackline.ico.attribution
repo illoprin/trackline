@@ -1,0 +1,8 @@
+asset:        trackline.ico
+title:        Trackline app icon, Windows .ico (16-256 px)
+author:       illoprin (Trackline fork owner), for the Trackline project
+source:       original work supplied for the Trackline fork (plan/icon.svg)
+license:      MIT OR Apache-2.0
+license-file: assets/app-icon/LICENSE.txt
+added:        2026-11-27 by DeepSeek (agent) for the Trackline fork
+notes:        PNG renders of trackline.svg packed by packaging/gen-icons.py. Embedded in filmcraft.exe by apps/filmcraft/build.rs.

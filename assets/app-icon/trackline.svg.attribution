@@ -1,0 +1,8 @@
+asset:        trackline.svg
+title:        Trackline app icon, canonical vector ("Tr" monogram on a dark-purple tile)
+author:       illoprin (Trackline fork owner), for the Trackline project
+source:       original work supplied for the Trackline fork (plan/icon.svg)
+license:      MIT OR Apache-2.0
+license-file: assets/app-icon/LICENSE.txt
+added:        2026-11-27 by DeepSeek (agent) for the Trackline fork
+notes:        Original work supplied as plan/icon.svg; drop shadows rewritten as feDropShadow so librsvg and resvg both render it. See assets/app-icon/README.md.

@@ -155,12 +155,12 @@ pub fn parse_prfpset(text: &str) -> Result<PrfpsetImport, String> {
             if !unsupported.is_empty() {
                 let shown = unsupported.iter().take(6).cloned().collect::<Vec<_>>().join(", ");
                 let more = if unsupported.len() > 6 { format!(" and {} more", unsupported.len() - 6) } else { String::new() };
-                out.warnings.push(format!("{}: effects not supported by FilmCraft: {shown}{more}", preset.name));
+                out.warnings.push(format!("{}: effects not supported by Trackline: {shown}{more}", preset.name));
             }
             if !dropped.is_empty() {
                 let shown = dropped.iter().take(6).cloned().collect::<Vec<_>>().join(", ");
                 let more = if dropped.len() > 6 { format!(" and {} more", dropped.len() - 6) } else { String::new() };
-                out.warnings.push(format!("{}: parameters not supported by FilmCraft: {shown}{more}", preset.name));
+                out.warnings.push(format!("{}: parameters not supported by Trackline: {shown}{more}", preset.name));
             }
         }
     }

@@ -1,0 +1,8 @@
+asset:        trackline-1024.png
+title:        Trackline app icon, 1024 px render
+author:       illoprin (Trackline fork owner), for the Trackline project
+source:       original work supplied for the Trackline fork (plan/icon.svg)
+license:      MIT OR Apache-2.0
+license-file: assets/app-icon/LICENSE.txt
+added:        2026-11-27 by DeepSeek (agent) for the Trackline fork
+notes:        PNG render of trackline.svg by packaging/icons.sh.

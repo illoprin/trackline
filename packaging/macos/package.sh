@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # Build, sign and (optionally) notarize the macOS release artifacts:
 #
-#   $DIST/filmcraft-<version>-macos-<arch>.dmg          FilmCraft.app on a drag-to-Applications DMG
+#   $DIST/filmcraft-<version>-macos-<arch>.dmg          Trackline (FilmCraft-derived) .app on a drag-to-Applications DMG
 #   $DIST/filmcraft-cli-<version>-macos-<arch>.zip      the headless CLI
 #
 # Usage: packaging/macos/package.sh [--arch universal|aarch64|x86_64] [--skip-build]
@@ -52,7 +52,7 @@ else
   warn "macOS: APPLE_ID / APPLE_PASSWORD / APPLE_TEAM_ID incomplete; signed but not notarized"
 fi
 
-echo "==> FilmCraft $VERSION for macOS ($ARCH), identity: $IDENTITY, notarize: $NOTARIZE"
+echo "==> Trackline $VERSION for macOS ($ARCH), identity: $IDENTITY, notarize: $NOTARIZE"
 
 # ---- build -------------------------------------------------------------------------------------
 if [[ "$SKIP_BUILD" = 0 ]]; then
@@ -118,7 +118,9 @@ echo "==> assembling $APP"
 mkdir -p "$APP/Contents/MacOS" "$APP/Contents/Resources"
 # Executable and icon carry the display name (CFBundleExecutable / CFBundleIconFile).
 cp "$WORK/bin/filmcraft" "$APP/Contents/MacOS/FilmCraft"
-cp "$ROOT/assets/app-icon/filmcraft.icns" "$APP/Contents/Resources/FilmCraft.icns"
+# CFBundleIconFile is FilmCraft (kept so the committed DMG .DS_Store layout still matches);
+# the artwork itself is the Trackline icon.
+cp "$ROOT/assets/app-icon/trackline.icns" "$APP/Contents/Resources/FilmCraft.icns"
 cp "$ROOT/NOTICE" "$APP/Contents/Resources/"
 sed -e "s/@VERSION@/$VERSION/g" -e "s/@SHORT_VERSION@/$SHORT_VERSION/g" \
   -e "s/@BUILD_SHA@/${FILMCRAFT_BUILD_SHA:-unknown}/g" \

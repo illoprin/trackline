@@ -1,11 +1,11 @@
 {
-  "id": "filmcraft",
-  "name": "FilmCraft",
+  "id": "trackline",
+  "name": "Trackline",
   "upgradeCode": "31E6FB14-9DBC-41DD-B24B-26B71FB31B62",
   "sources": [
-    "filmcraft.wxs"
+    "trackline.wxs"
   ],
-  "icon": "assets/app-icon/filmcraft.ico",
+  "icon": "assets/app-icon/trackline.ico",
   "localization": [],
   "extensions": [
     "UI"
