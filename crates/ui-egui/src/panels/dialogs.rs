@@ -456,54 +456,49 @@ fn about(app: &mut FilmcraftApp, ui: &mut egui::Ui) {
     }
 }
 
-/// About ▸ About: the logo, version, licence and the link to the original FilmCraft project.
+/// About ▸ About: the logo large, the description, and every project link as a big icon with a
+/// blue link under it, then the upstream project.
 ///
-/// Automation ids: `about.github`, `about.reportIssue`.
+/// Automation ids: `about.github`, `about.reportIssue`, `about.support`, `about.youtube`.
 fn about_tab(app: &mut FilmcraftApp, ui: &mut egui::Ui) {
     use crate::icons::{self, Icon};
     use crate::links;
     let t = app.tokens;
-    ui.set_width(380.0);
-    // Trackline logo (the fork's own artwork; not an ArtCraft mark).
-    let (r, _) = ui.allocate_exact_size(egui::vec2(ui.available_width(), 40.0), egui::Sense::hover());
-    crate::brand::paint_logo(ui, egui::pos2(r.min.x, r.center().y), 40.0);
-    ui.add_space(6.0);
-    ui.heading("Trackline");
-    ui.label(tlf!("Version {version}", version = env!("CARGO_PKG_VERSION")));
-    ui.label(tl!(
-        "A non-linear video editor and all-in-one toolkit for social media. An independent fork of FilmCraft; not an official FilmCraft or ArtCraft product."
-    ));
-    ui.add_space(10.0);
-    let mut link = |ui: &mut egui::Ui, id: &str, icon: Icon, label: &str, url: &str, primary: bool| {
-        let size = egui::vec2(ui.available_width(), if primary { 36.0 } else { 28.0 });
-        let (r, resp) = ui.allocate_exact_size(size, egui::Sense::click());
+    ui.set_width(460.0);
+    ui.vertical_centered(|ui| {
+        // Trackline logo large (the fork's own artwork; not an ArtCraft mark).
+        let (r, _) = ui.allocate_exact_size(egui::vec2(ui.available_width(), 84.0), egui::Sense::hover());
+        crate::brand::paint_logo(ui, egui::pos2(r.center().x - 42.0, r.center().y), 84.0);
+        ui.add_space(8.0);
+        ui.heading("Trackline");
+        ui.label(tlf!("Version {version}", version = env!("CARGO_PKG_VERSION")));
+        ui.label(tl!("A non-linear video editor and all-in-one toolkit for social media. An independent fork of FilmCraft."));
+    });
+    ui.add_space(14.0);
+    // A blue link under each big icon.
+    let blue = egui::Color32::from_rgb(90, 160, 255);
+    let mut icon_link = |ui: &mut egui::Ui, id: &str, icon: Icon, label: &str, url: &str, accent: bool| {
+        let (rect, resp) = ui.allocate_exact_size(egui::vec2(108.0, 104.0), egui::Sense::click());
         let resp = resp.on_hover_text(url);
-        app.auto.add(&format!("about.{id}"), r, label);
-        let bg = if primary {
-            if resp.hovered() { t.accent_hover } else { t.accent }
-        } else if resp.hovered() {
-            t.hover
-        } else {
-            egui::Color32::TRANSPARENT
-        };
-        ui.painter().rect_filled(r, 6.0, bg);
-        let fg = if primary { egui::Color32::WHITE } else { t.text };
-        let ir = egui::Rect::from_center_size(egui::pos2(r.min.x + 20.0, r.center().y), egui::vec2(18.0, 18.0));
-        icons::paint(ui.painter(), ir, icon, fg);
-        ui.painter().text(
-            egui::pos2(r.min.x + 40.0, r.center().y),
-            egui::Align2::LEFT_CENTER,
-            label,
-            crate::theme::Tokens::ui(if primary { 14.0 } else { 13.0 }),
-            fg,
-        );
+        app.auto.add(&format!("about.{id}"), rect, label);
+        let ink = if accent { t.accent } else { t.text };
+        let ir = egui::Rect::from_center_size(egui::pos2(rect.center().x, rect.top() + 40.0), egui::vec2(48.0, 48.0));
+        icons::paint(ui.painter(), ir, icon, ink);
+        ui.painter().text(egui::pos2(rect.center().x, rect.bottom() - 4.0), egui::Align2::CENTER_BOTTOM, label, crate::theme::Tokens::ui(12.0), blue);
         if resp.clicked() {
             links::open(app, ui.ctx(), url);
         }
     };
-    link(ui, "github", Icon::Code, tl!("Original FilmCraft project on GitHub"), links::UPSTREAM, true);
-    ui.add_space(6.0);
-    link(ui, "reportIssue", Icon::Code, tl!("Report an issue upstream"), links::UPSTREAM_ISSUES, false);
-    ui.add_space(10.0);
-    ui.label(egui::RichText::new(tl!("MIT OR Apache-2.0. Fonts: Inter, Noto Serif and JetBrains Mono (SIL OFL 1.1).")).small().color(t.text_dim));
+    ui.horizontal_wrapped(|ui| {
+        icon_link(ui, "github", Icon::Code, tl!("Project on GitHub"), links::PROJECT, true);
+        icon_link(ui, "reportIssue", Icon::Info, tl!("Report an issue"), links::ISSUES, false);
+        icon_link(ui, "support", Icon::DonationAlerts, tl!("Support the author"), links::SUPPORT, false);
+        icon_link(ui, "youtube", Icon::YouTube, tl!("Author's channel"), links::YOUTUBE, false);
+    });
+    ui.add_space(12.0);
+    ui.vertical_centered(|ui| {
+        ui.hyperlink_to(tl!("Original FilmCraft project on GitHub"), links::UPSTREAM);
+        ui.add_space(8.0);
+        ui.label(egui::RichText::new(tl!("MIT OR Apache-2.0. Fonts: Inter, Noto Serif and JetBrains Mono (SIL OFL 1.1).")).small().color(t.text_dim));
+    });
 }

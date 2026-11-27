@@ -28,7 +28,7 @@
   <key>CFBundleName</key>
   <string>Trackline</string>
   <key>CFBundleExecutable</key>
-  <string>FilmCraft</string>
+  <string>Trackline</string>
   <key>CFBundleIdentifier</key>
   <string>ru.illoprin.trackline</string>
   <key>CFBundleInfoDictionaryVersion</key>
@@ -46,7 +46,7 @@
   <key>TracklineBuildCommit</key>
   <string>@BUILD_SHA@</string>
   <key>CFBundleIconFile</key>
-  <string>FilmCraft</string>
+  <string>Trackline</string>
   <key>LSApplicationCategoryType</key>
   <string>public.app-category.video</string>
   <!-- Must match MACOSX_DEPLOYMENT_TARGET in package.sh. Big Sur is the first release on
@@ -98,7 +98,7 @@
         <string>public.json</string>
       </array>
       <key>UTTypeIconFile</key>
-      <string>FilmCraft</string>
+      <string>Trackline</string>
       <key>UTTypeTagSpecification</key>
       <dict>
         <key>public.filename-extension</key>

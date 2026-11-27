@@ -12,7 +12,7 @@ Premiere's `.kys` files can't be imported yet: choosing one says so.
 
 Every entry names a FilmCraft command id. Engine commands run through `Session::execute`; UI
 commands (frames, panels, monitor zoom, Project and Text panel navigation) run through
-`menus::invoke`. Both are reachable by id from the CLI (`filmcraft-cli exec <id>`), the control
+`menus::invoke`. Both are reachable by id from the CLI (`trackline-cli exec <id>`), the control
 channel (`engine.execute` / `ui.menu.invoke`) and MCP (`command_run`).
 
 Tests: `crates/engine/src/keyboard_tests.rs` (no key used twice in one scope; behaviour of the

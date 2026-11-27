@@ -6,7 +6,7 @@ use std::process::{Command, Output, Stdio};
 use serde_json::{Value, json};
 
 fn cli(args: &[&str]) -> Output {
-    crate::filmcraft_command().args(args).output().expect("spawn filmcraft-cli")
+    crate::filmcraft_command().args(args).output().expect("spawn trackline-cli")
 }
 
 fn json_out(o: &Output) -> Value {
@@ -29,7 +29,7 @@ fn help_and_usage_errors() {
 
 #[test]
 fn version_after_global_options() {
-    let want = format!("filmcraft-cli {}\n", env!("CARGO_PKG_VERSION"));
+    let want = format!("trackline-cli {}\n", env!("CARGO_PKG_VERSION"));
     for args in [&["--version"][..], &["-V"], &["version"], &["--demo", "--version"], &["--compact", "-V"], &["--demo", "version"]] {
         let o = cli(args);
         assert!(o.status.success(), "{args:?}: {}", String::from_utf8_lossy(&o.stderr));
@@ -372,7 +372,7 @@ fn export_says_when_the_software_encoder_ran_instead_of_hardware() {
         let stderr = String::from_utf8_lossy(&o.stderr);
         for w in warnings {
             assert!(w.contains("software") && w.ends_with("encoder ran"), "{name}: {w}");
-            assert!(stderr.contains(&format!("filmcraft-cli: warning: {w}")), "{name}: {stderr}");
+            assert!(stderr.contains(&format!("trackline-cli: warning: {w}")), "{name}: {stderr}");
         }
         assert_eq!(stderr.contains("encoder ran"), warned, "{name}: {stderr}");
         assert!(path.exists(), "{name}");
@@ -496,7 +496,7 @@ fn export_with_presets() {
     let _ = std::fs::remove_dir_all(&dir);
 }
 
-/// `filmcraft-cli commands | head -c 10` panicked with "failed printing to stdout: Broken pipe
+/// `trackline-cli commands | head -c 10` panicked with "failed printing to stdout: Broken pipe
 /// (os error 32)" and exit status 101 (#285).
 #[test]
 fn closed_stdout_ends_quietly() {
@@ -557,7 +557,7 @@ fn render_rejects_bad_numbers() {
         let o = cli(&["--demo", "render", "--seconds", secs, "--scale", scale, "--out", &still]);
         let err = String::from_utf8_lossy(&o.stderr);
         assert_eq!(o.status.code(), Some(2), "{opt} {bad}: {err}");
-        assert!(err.contains("filmcraft-cli:") && err.contains(opt), "{opt} {bad}: {err}");
+        assert!(err.contains("trackline-cli:") && err.contains(opt), "{opt} {bad}: {err}");
         assert!(!std::path::Path::new(&still).exists(), "{opt} {bad} wrote a file");
     }
     let _ = std::fs::remove_dir_all(&dir);

@@ -12,13 +12,13 @@
   ],
   "payloads": [
     "NOTICE",
-    "filmcraft-cli.exe",
-    "filmcraft.exe"
+    "trackline-cli.exe",
+    "trackline.exe"
   ],
   "registry": [
     [
       "-1",
-      "Software\\Microsoft\\Windows\\CurrentVersion\\App Paths\\filmcraft.exe",
+      "Software\\Microsoft\\Windows\\CurrentVersion\\App Paths\\trackline.exe",
       "",
       "[#FilmcraftExe]"
     ]

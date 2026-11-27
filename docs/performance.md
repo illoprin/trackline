@@ -7,7 +7,7 @@ and `.md` (options and sections: [testing.md](testing.md) §5). Agents read live
 ## Interactive builds and redraw work
 
 For interactive editing, build with `cargo build --release -p filmcraft --features whisper` and
-launch `target/release/filmcraft`. The development profile optimizes dependencies and codec hot
+launch `target/release/trackline`. The development profile optimizes dependencies and codec hot
 loops, but still builds the editor at optimization level 1; it is not the release performance
 baseline. Keep the same build profile when comparing code changes.
 
@@ -98,7 +98,7 @@ Apple M2 Max (12 cores, 64 GB, macOS 26.6), 2026-10-23, a shared machine with ot
 builds running (1-minute load average 57–170 across the runs, noted per pair). The timeline is
 the #3030 shape: 60 s 1080p23.976 sequence, a 1080p H.264 clip on V1, a 4K H.264 clip on V2 as a
 40 % picture-in-picture, stereo WAV on A1 (ffmpeg `testsrc2` + noise fixtures), exported to
-H.264 20 Mb/s + AAC through `filmcraft-cli … run`, hardware decoding on. Before / after binaries
+H.264 20 Mb/s + AAC through `trackline-cli … run`, hardware decoding on. Before / after binaries
 alternated (A/B/A/B/A/B), median of three; `convert`, `encode`, `render`, `wait` are the export's
 own stage timers (render overlaps encode, so they do not add up to the wall time).
 
@@ -152,7 +152,7 @@ path scores 24–29 dB) and not a range or matrix difference. On smooth content 
 37 dB and 0.2 / 0.6 / 0.8 codes).
 
 Sessions: under LLDB with auto-continuing breakpoints on `VTCompressionSessionCreate` and
-`VTCompressionSessionInvalidate`, two consecutive exports in one `filmcraft-cli run` created 3
+`VTCompressionSessionInvalidate`, two consecutive exports in one `trackline-cli run` created 3
 sessions (the HEVC availability probe and one per export) and invalidated every one (6 hits: ours
 and the framework's at release); the test that exports at other frame rates, cancels an export
 from another thread and exports again created 6 and invalidated 12.
@@ -262,7 +262,7 @@ so Export ▸ GPU Rendering did nothing for the frames under one. A full-frame a
 run in the GPU effect stage on the composite of the tracks below. Windows 11 Pro 26300, Xeon
 E5-2680 v4 (14 cores / 28 threads), RTX 5060 8 GB (driver 617.14), 2026-10-23, release builds of
 main 20f02b9a and of the change with `cargo build --release -p filmcraft -p filmcraft-cli`, two
-alternating rounds, `filmcraft-cli … run` of `file.exportMedia` (H.264, `gpuRendering` and
+alternating rounds, `trackline-cli … run` of `file.exportMedia` (H.264, `gpuRendering` and
 `hardwareEncoding` Auto, NVENC), 300 frames of a 1920×1080 30 fps sequence, seconds:
 
 | scene | main | **after** |

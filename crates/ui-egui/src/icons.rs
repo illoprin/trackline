@@ -95,6 +95,10 @@ pub enum Icon {
     Globe,
     /// Source code (GitHub repository): angle brackets and a slash.
     Code,
+    /// Support the author: a heart.
+    DonationAlerts,
+    /// YouTube: a rounded play badge.
+    YouTube,
     Sparkle,
     Grid,
     Square,
@@ -689,6 +693,28 @@ pub fn paint(painter: &Painter, rect: Rect, icon: Icon, color: Color32) {
             pen.line(&[(5.0, 4.0), (1.5, 8.0), (5.0, 12.0)]);
             pen.line(&[(11.0, 4.0), (14.5, 8.0), (11.0, 12.0)]);
             pen.line(&[(9.5, 2.5), (6.5, 13.5)]);
+        }
+        DonationAlerts => {
+            // A heart (support), our own drawing, not a third-party logo.
+            pen.closed(&[
+                (8.0, 13.5),
+                (2.5, 8.2),
+                (2.5, 6.0),
+                (3.4, 4.4),
+                (5.0, 3.6),
+                (6.5, 4.2),
+                (8.0, 6.0),
+                (9.5, 4.2),
+                (11.0, 3.6),
+                (12.6, 4.4),
+                (13.5, 6.0),
+                (13.5, 8.2),
+            ]);
+        }
+        YouTube => {
+            // A rounded play badge.
+            pen.closed(&[(3.0, 4.0), (13.0, 4.0), (14.5, 4.8), (14.5, 11.2), (13.0, 12.0), (3.0, 12.0), (1.5, 11.2), (1.5, 4.8)]);
+            pen.fill(&[(6.5, 6.2), (10.5, 8.0), (6.5, 9.8)]);
         }
         Sparkle => {
             pen.fill(&[(8.0, 1.5), (9.5, 6.5), (14.5, 8.0), (9.5, 9.5), (8.0, 14.5), (6.5, 9.5), (1.5, 8.0), (6.5, 6.5)]);

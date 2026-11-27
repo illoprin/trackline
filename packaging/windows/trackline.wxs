@@ -11,16 +11,14 @@
     <MajorUpgrade AllowSameVersionUpgrades="yes" DowngradeErrorMessage="A newer version of Trackline is already installed." />
     <MediaTemplate EmbedCab="yes" CompressionLevel="high" />
 
-    <Icon Id="FilmcraftIcon.ico" SourceFile="$(var.IconPath)" />
-    <Property Id="ARPPRODUCTICON" Value="FilmcraftIcon.ico" />
-    <Property Id="ARPURLINFOABOUT" Value="https://github.com/storytold/filmcraft" />
-    <Property Id="ARPURLUPDATEINFO" Value="https://github.com/storytold/filmcraft/releases" />
+    <Icon Id="TracklineIcon.ico" SourceFile="$(var.IconPath)" />
+    <Property Id="ARPPRODUCTICON" Value="TracklineIcon.ico" />
+    <Property Id="ARPURLINFOABOUT" Value="https://github.com/illoprin/trackline" />
+    <Property Id="ARPURLUPDATEINFO" Value="https://github.com/illoprin/trackline/releases" />
     <Property Id="ARPHELPLINK" Value="https://github.com/storytold/filmcraft/tree/main/docs" />
 
     <StandardDirectory Id="ProgramFiles6432Folder">
-      <Directory Id="CraftSuiteFolder" Name="ArtCraft">
-        <Directory Id="INSTALLFOLDER" Name="FilmCraft" />
-      </Directory>
+      <Directory Id="INSTALLFOLDER" Name="Trackline" />
     </StandardDirectory>
     <StandardDirectory Id="ProgramMenuFolder" />
 
@@ -46,16 +44,16 @@
     <ComponentGroup Id="FilmcraftFiles" Directory="INSTALLFOLDER">
       <Component Id="FilmcraftApp" Guid="15933017-925B-4963-8992-52000EB26AAA">
         <File Id="FilmcraftNotice" Source="$(var.BinDir)\NOTICE" KeyPath="no" />
-        <File Id="FilmcraftExe" Source="$(var.BinDir)\filmcraft.exe" KeyPath="yes">
-          <Shortcut Id="StartMenuShortcut" Directory="ProgramMenuFolder" Name="Trackline" Description="Trackline video editor" WorkingDirectory="INSTALLFOLDER" Advertise="yes" Icon="FilmcraftIcon.ico" IconIndex="0" />
+        <File Id="FilmcraftExe" Source="$(var.BinDir)\trackline.exe" KeyPath="yes">
+          <Shortcut Id="StartMenuShortcut" Directory="ProgramMenuFolder" Name="Trackline" Description="Trackline video editor" WorkingDirectory="INSTALLFOLDER" Advertise="yes" Icon="TracklineIcon.ico" IconIndex="0" />
         </File>
 
-        <RegistryValue Root="HKMU" Key="Software\Microsoft\Windows\CurrentVersion\App Paths\filmcraft.exe" Value="[#FilmcraftExe]" Type="string" />
-      <RegistryValue Root="HKMU" Key="Software\FilmCraft" Name="InstallDir" Value="[INSTALLFOLDER]" Type="string" />
+        <RegistryValue Root="HKMU" Key="Software\Microsoft\Windows\CurrentVersion\App Paths\trackline.exe" Value="[#FilmcraftExe]" Type="string" />
+      <RegistryValue Root="HKMU" Key="Software\Trackline" Name="InstallDir" Value="[INSTALLFOLDER]" Type="string" />
       </Component>
 
       <Component Id="FilmcraftCli">
-        <File Id="FilmcraftCliExe" Source="$(var.BinDir)\filmcraft-cli.exe" KeyPath="yes" />
+        <File Id="FilmcraftCliExe" Source="$(var.BinDir)\trackline-cli.exe" KeyPath="yes" />
       </Component>
     </ComponentGroup>
   </Fragment>

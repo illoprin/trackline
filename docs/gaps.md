@@ -123,8 +123,8 @@ platforms** G4, G9, G17; **performance** G16; **ecosystem** G11; **measurement**
 
 ## G6. No real-world media corpus or workflow acceptance tests
 
-- **Done:** first scripted MCP workflows (#835, `apps/filmcraft-cli/tests/it/workflows.rs`): the
-  `filmcraft-cli mcp` binary imports ffmpeg-made phone-like VFR H.264 + AAC MP4 and long-GOP
+- **Done:** first scripted MCP workflows (#835, `apps/trackline-cli/tests/it/workflows.rs`): the
+  `trackline-cli mcp` binary imports ffmpeg-made phone-like VFR H.264 + AAC MP4 and long-GOP
   H.264 Matroska with two audio tracks (AAC, AC-3), edits (extract, audio gain, title; ripple
   trims, colour matte, cross dissolve), exports H.264 MP4, and saves a project that a new process
   exports as ProRes; ffprobe / ffmpeg check streams, frame count, duration, frame placement, A/V
@@ -177,7 +177,7 @@ platforms** G4, G9, G17; **performance** G16; **ecosystem** G11; **measurement**
 
 - **Have:** files given at launch (terminal, Open With, file associations) open whatever the case
   of `.fcproj` and are made absolute, and arguments that are not Unicode no longer stop the start;
-  `filmcraft-cli import` stores no Windows `\\?\` paths (#850). On a Wayland session a file
+  `trackline-cli import` stores no Windows `\\?\` paths (#850). On a Wayland session a file
   dropped from the desktop is taken as it is on X11 — the pinned winit fork reports drops through
   `wl_data_device` — and `FILMCRAFT_XWAYLAND=1` opens the session through XWayland.
 - **Missing:** routine runtime testing off macOS. Linux playback stutter (#617), Wayland title

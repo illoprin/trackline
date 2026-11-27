@@ -23,7 +23,7 @@ struct Driver {
 impl Driver {
     /// The demo project saved (in name) in a fresh folder, so pasted images are written there.
     fn demo(name: &str) -> Self {
-        let dir = std::env::temp_dir().join(format!("filmcraft-clipboard-{name}-{}", std::process::id()));
+        let dir = std::env::temp_dir().join(format!("trackline-clipboard-{name}-{}", std::process::id()));
         let _ = std::fs::remove_dir_all(&dir);
         std::fs::create_dir_all(&dir).unwrap();
         let mut session = Session::default();

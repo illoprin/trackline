@@ -7,35 +7,35 @@ FilmCraft from an agent. Part 2 covers developing FilmCraft as an agent.
 
 ## 1. MCP server
 
-`filmcraft-cli mcp` serves MCP on stdio. It has two modes:
+`trackline-cli mcp` serves MCP on stdio. It has two modes:
 
 | Mode | Command | What it drives |
 |---|---|---|
-| Headless | `filmcraft-cli mcp --demo` or `--project p.fcproj` (neither = empty project) | an in-process engine session, no window |
-| Bridge | `filmcraft-cli mcp --bridge 127.0.0.1:9876` | the running desktop app started with `filmcraft --control 9876` |
+| Headless | `trackline-cli mcp --demo` or `--project p.fcproj` (neither = empty project) | an in-process engine session, no window |
+| Bridge | `trackline-cli mcp --bridge 127.0.0.1:9876` | the running desktop app started with `filmcraft --control 9876` |
 
 Headless mode also takes `--data-dir DIR` (user presets). Any other option is rejected (exit 2):
 there are no folder-confinement flags such as `--automation-read-root`, so the server can read
 and write wherever the user can.
 
 **Claude Code.** The repository's `.mcp.json` registers both servers (`filmcraft` = bridge,
-`filmcraft-headless` = demo). Both point at `target/release/filmcraft-cli`, so build it first:
+`filmcraft-headless` = demo). Both point at `target/release/trackline-cli`, so build it first:
 
 ```sh
 cargo build --release -p filmcraft-cli -p filmcraft
 export FILMCRAFT_CONTROL_TOKEN="$(python3 -c 'import secrets; print(secrets.token_hex(32))')"
-./target/release/filmcraft --control 9876 &      # only for the bridge server
+./target/release/trackline --control 9876 &      # only for the bridge server
 claude                                           # approve the project MCP servers when asked
 ```
 
 To register the server by hand, or for another MCP client, use the absolute binary path:
 
 ```sh
-claude mcp add filmcraft-headless -- /abs/path/filmcraft/target/release/filmcraft-cli mcp --demo
+claude mcp add filmcraft-headless -- /abs/path/filmcraft/target/release/trackline-cli mcp --demo
 ```
 
 ```json
-{ "mcpServers": { "filmcraft": { "command": "/abs/path/filmcraft-cli", "args": ["mcp", "--bridge", "127.0.0.1:9876"] } } }
+{ "mcpServers": { "filmcraft": { "command": "/abs/path/trackline-cli", "args": ["mcp", "--bridge", "127.0.0.1:9876"] } } }
 ```
 
 ### Effect parameter replies
@@ -56,19 +56,19 @@ returns `{"removed": true}` or `{"removed": false}` (no keyframe sat exactly at 
 
 ### From an installed release
 
-The release packages ship `filmcraft-cli` alongside the desktop app, so no build is needed:
+The release packages ship `trackline-cli` alongside the desktop app, so no build is needed:
 
 | Install | CLI |
 |---|---|
-| Windows (MSI) | `%LOCALAPPDATA%\Programs\ArtCraft\FilmCraft\filmcraft-cli.exe` by default (`C:\Program Files\ArtCraft\FilmCraft\filmcraft-cli.exe` for an all-users install, under `Program Files (x86)` instead for the 32-bit build, or wherever you installed it otherwise), not on `PATH` |
-| Linux (deb, rpm) | `/usr/bin/filmcraft-cli` |
-| macOS | the separate `filmcraft-cli-<version>-macos-<arch>.zip` release asset (the `.app` holds only the desktop app) |
+| Windows (MSI) | `%LOCALAPPDATA%\Programs\ArtCraft\FilmCraft\trackline-cli.exe` by default (`C:\Program Files\ArtCraft\FilmCraft\trackline-cli.exe` for an all-users install, under `Program Files (x86)` instead for the 32-bit build, or wherever you installed it otherwise), not on `PATH` |
+| Linux (deb, rpm) | `/usr/bin/trackline-cli` |
+| macOS | the separate `trackline-cli-<version>-macos-<arch>.zip` release asset (the `.app` holds only the desktop app) |
 
 ```sh
 # Windows (PowerShell), default install folder
-claude mcp add filmcraft -- "$env:LOCALAPPDATA\Programs\ArtCraft\FilmCraft\filmcraft-cli.exe" mcp
+claude mcp add filmcraft -- "$env:LOCALAPPDATA\Programs\ArtCraft\FilmCraft\trackline-cli.exe" mcp
 # Linux, or macOS with the CLI unzipped onto PATH
-claude mcp add filmcraft -- filmcraft-cli mcp
+claude mcp add filmcraft -- trackline-cli mcp
 ```
 
 ### Tools
@@ -150,13 +150,13 @@ progress and stop it:
   name the first still as `path`, the name `file.import` takes for the sequence, and the two commands
   add `lastPath`, the last still, and `basePath`, the name the stills are numbered from (a cancelled
   long export's clean-up removes only the stills numbered from `basePath` with the digits of
-  `lastPath`, up to it). `filmcraft-cli export` prints the first and the last.
+  `lastPath`, up to it). `trackline-cli export` prints the first and the last.
 - `file.exportMedia`, `export.quick`, `export.resolve` and `export.queue.add` also return `warnings` (an array of
   strings, empty when none). If the default or explicitly selected In/Out range covers one
   sequence frame and at least one mark is set, the warning suggests `range: "entire"` (#3364).
   The export still succeeds, including with `wait: true` over MCP or the bridge. Explicit custom,
   work-area and entire-sequence ranges are unchanged and do not warn. Queue additions collect
-  warnings from the newly added ranges. `filmcraft-cli export` (including `--queue`)
+  warnings from the newly added ranges. `trackline-cli export` (including `--queue`)
   also prints the warning on stderr and suggests `--range entire`; the warning does not change
   the exit status. Frame counts here use the sequence rate, even when the export rate differs.
 - A finished export's `result` (`file.exportMedia` with `wait: true`, its job in `jobs.list`, each
@@ -166,10 +166,10 @@ progress and stop it:
   no driver…) the software encoder runs, and `result.warnings` says so with the reason when there is
   one, e.g. `hardware encoding declined (NVENC: two-pass VBR); the software H.264 encoder ran`. The
   app logs the same line as a warning and shows it in Events after the job's "Finished" line, and
-  `filmcraft-cli export` (with or without `--queue`) prints it on stderr.
+  `trackline-cli export` (with or without `--queue`) prints it on stderr.
 - Bridge mode works the same way: the export runs as an app job (the app stays responsive and shows
   "Exporting… NN%" in its status bar) and the call returns when it is written, however long it
-  takes. `filmcraft-cli --bridge … exec file.exportMedia … wait=true` blocks the same way.
+  takes. `trackline-cli --bridge … exec file.exportMedia … wait=true` blocks the same way.
 
 ## 2. Control channel
 
@@ -230,32 +230,32 @@ Notes:
 - `timeline.move` takes linked partners along while Linked Selection is on: moving a picture
   clip moves its sound by the same offset (pass `"linked": false` to move only the listed clips).
   It returns `{"moved": [ids]}`, every clip that moved.
-- Without a window, `filmcraft-cli run script.jsonl` (lines of `{"id":"…","params":{…}}`) runs the
+- Without a window, `trackline-cli run script.jsonl` (lines of `{"id":"…","params":{…}}`) runs the
   same commands headlessly. See §2b for the rest of the CLI.
 
 ## 2b. Command-line interface
 
 Every command is also one shell call away. Options go anywhere; output is JSON; exit status is 0 on
-success, 1 when a command fails and 2 on a usage error. `filmcraft-cli help`, `filmcraft-cli --help`
-and `filmcraft-cli -h` print the reference and exit successfully.
-If the reader of stdout closes the pipe early (`filmcraft-cli commands | head`), the CLI drops the rest
+success, 1 when a command fails and 2 on a usage error. `trackline-cli help`, `trackline-cli --help`
+and `trackline-cli -h` print the reference and exit successfully.
+If the reader of stdout closes the pipe early (`trackline-cli commands | head`), the CLI drops the rest
 of its output but still finishes the work, saves included, and the exit status still reports
 failures; any other stdout write error is reported and makes the status 1.
 
 ```sh
-filmcraft-cli commands razor                     # find ids (add --json for machine output)
-filmcraft-cli describe timeline.razor            # one command: menu, shortcut, params, enabled now
-filmcraft-cli --demo inspect sequence            # project / sequence as JSON
-filmcraft-cli --project p.fcproj --save exec timeline.razor seconds=3.5
-filmcraft-cli --project p.fcproj exec effects.apply '{"effect":"Gaussian Blur"}'
-filmcraft-cli --project p.fcproj exec markers.exportCsv path=review.csv
-filmcraft-cli --project p.fcproj --save import a.mov b.wav
-filmcraft-cli --project p.fcproj export out.mp4  # format from the extension; waits for the job
-filmcraft-cli --project p.fcproj export out --preset "YouTube 1080p Full HD" --start 0 --end 10
-filmcraft-cli export --list-presets prores       # built-in + user presets (--data-dir for another library)
-filmcraft-cli --project p.fcproj exec export.queue.add preset="Apple ProRes 422 HQ" path=renders/ start=true wait=true
-echo '{"id":"file.newBin","params":{"name":"Selects"}}' | filmcraft-cli --project p.fcproj --save run -
-filmcraft-cli --bridge 127.0.0.1:9876 exec window.workspace.color   # the running app
+trackline-cli commands razor                     # find ids (add --json for machine output)
+trackline-cli describe timeline.razor            # one command: menu, shortcut, params, enabled now
+trackline-cli --demo inspect sequence            # project / sequence as JSON
+trackline-cli --project p.fcproj --save exec timeline.razor seconds=3.5
+trackline-cli --project p.fcproj exec effects.apply '{"effect":"Gaussian Blur"}'
+trackline-cli --project p.fcproj exec markers.exportCsv path=review.csv
+trackline-cli --project p.fcproj --save import a.mov b.wav
+trackline-cli --project p.fcproj export out.mp4  # format from the extension; waits for the job
+trackline-cli --project p.fcproj export out --preset "YouTube 1080p Full HD" --start 0 --end 10
+trackline-cli export --list-presets prores       # built-in + user presets (--data-dir for another library)
+trackline-cli --project p.fcproj exec export.queue.add preset="Apple ProRes 422 HQ" path=renders/ start=true wait=true
+echo '{"id":"file.newBin","params":{"name":"Selects"}}' | trackline-cli --project p.fcproj --save run -
+trackline-cli --bridge 127.0.0.1:9876 exec window.workspace.color   # the running app
 ```
 
 `key=value` values are parsed as JSON when they can be (`3.5`, `true`, `[1,2]`), otherwise taken as
