@@ -26,7 +26,7 @@ prefix="$(realpath -m -- "$prefix")"
 source_dir="$(CDPATH='' cd -- "$(dirname -- "$0")" && pwd -P)"
 case "$prefix/" in "$source_dir/"*) fail 'choose an installation prefix outside the extracted tarball' ;; *) ;; esac
 app_id=ru.illoprin.trackline
-for binary in filmcraft trackline-cli; do
+for binary in trackline trackline-cli; do
   [[ -f "$source_dir/bin/$binary" ]] || fail "missing bin/$binary; extract the complete tarball first"
 done
 [[ -f "$source_dir/share/applications/$app_id.desktop" ]] || fail 'missing desktop entry; extract the complete tarball first'
