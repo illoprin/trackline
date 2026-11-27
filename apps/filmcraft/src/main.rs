@@ -213,7 +213,7 @@ fn main() -> eframe::Result {
                     graphics.finish();
                     match relaunch(graphics.mode()) {
                         Ok(code) => std::process::exit(code),
-                        Err(e) => log::error!("can't start FilmCraft again in graphics mode {}: {e}", graphics.mode().name()),
+                        Err(e) => log::error!("can't start Trackline again in graphics mode {}: {e}", graphics.mode().name()),
                     }
                 }
                 Err(eframe::Error::AppCreation(what.into()))
@@ -278,7 +278,7 @@ fn relaunch(mode: graphics::Mode) -> std::io::Result<i32> {
         Some(image) => std::path::PathBuf::from(image),
         None => std::env::current_exe()?,
     };
-    log::warn!("starting FilmCraft again in graphics mode {}", mode.name());
+    log::warn!("starting Trackline again in graphics mode {}", mode.name());
     let status = std::process::Command::new(exe).args(relaunch_args(std::env::args_os().skip(1), mode)).env(RELAUNCHED, "1").status()?;
     Ok(status.code().unwrap_or(1))
 }
