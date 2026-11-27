@@ -1963,7 +1963,13 @@ fn keyframe_menu(
     let response = crate::menus::checked_entry(ui, tl!("Clear"), true, None);
     app.auto.add("effectControls.keyframeMenu.clear", response.rect, "Clear");
     if response.clicked() {
-        actions.push(("effects.deleteKeyframe".into(), params.clone()));
+        // A selected keyframe stands for the whole selection (#1916): Clear removes every selected
+        // keyframe as one edit, exactly as dragging one of them moves the group.
+        if interpolated.get("keyframes").is_some() {
+            actions.push(("effects.deleteKeyframes".into(), interpolated.clone()));
+        } else {
+            actions.push(("effects.deleteKeyframe".into(), params.clone()));
+        }
         ui.close();
     }
     for group in [
@@ -1987,6 +1993,20 @@ fn keyframe_menu(
                 ui.close();
             }
         }
+    }
+    ui.separator();
+    // The panel's selected effects, as in Premiere's keyframe menu (see the ui-egui README).
+    let copy = ui.button(tl!("Copy Effects"));
+    app.auto.add("effectControls.keyframeMenu.copyEffects", copy.rect, "Copy Effects");
+    if copy.clicked() {
+        actions.push(("ui.effectControls.copyEffects".into(), json!({})));
+        ui.close();
+    }
+    let paste = ui.button(tl!("Paste Effects"));
+    app.auto.add("effectControls.keyframeMenu.pasteEffects", paste.rect, "Paste Effects");
+    if paste.clicked() {
+        actions.push(("ui.effectControls.pasteEffects".into(), json!({})));
+        ui.close();
     }
 }
 

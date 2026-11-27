@@ -744,8 +744,6 @@ fn effect_color_picker_accepts_and_exposes_hex_text() {
     for intrinsic in ["motion", "opacity", "time_remap"] {
         d.click(&format!("effectControls.effect.{intrinsic}.twirl"));
     }
-    let picker = "effectControls.tint.black.color";
-    d.click(picker);
     let hex = "effectControls.tint.black.hex";
     d.click(hex);
     d.ok("ui.key", json!({"key": "Cmd+A"}));
@@ -1493,22 +1491,18 @@ fn keyframe_menu_has_premieres_rows_and_checks_the_current_interpolation() {
     }
 }
 
-/// #265: with every keyframe selected (⌘A in Effect Controls), Clear from a keyframe's menu still
-/// deletes only the right-clicked keyframe. This pins today's behaviour; Clear acting on the whole
-/// selection, as in Premiere, comes with Select All back in the menu.
+/// Clear on a keyframe that is not part of the selection deletes only that keyframe; a clicked
+/// keyframe inside the selection clears the whole group (see
+/// `clear_from_keyframe_context_menu_deletes_the_selected_group`).
 #[test]
-fn keyframe_menu_clear_deletes_only_the_clicked_keyframe_of_a_selection() {
+fn keyframe_menu_clear_deletes_the_clicked_keyframe_when_it_is_not_selected() {
     let (mut d, clip) = Driver::demo();
-    let (diamond, time) = three_keyframes_first_easing_in(&mut d, &clip);
-    let selected = |d: &mut Driver| d.ok("ui.inspect", json!({}))["ui"]["keyframe_selection"].as_array().map_or(0, Vec::len);
-    d.ok("ui.set", json!({"focused": "EffectControls"}));
-    d.ok("ui.key", json!({"key": "Cmd+A"}));
-    d.frames(2);
-    d.right_click(&diamond);
-    assert_eq!(selected(&mut d), 3, "the right-clicked keyframe is part of the whole selection");
+    let keys = lane_keys(&mut d, &clip, &[("scale", 1.0), ("scale", 2.0), ("rotation", 2.0)]);
+    select_keys(&mut d, &keys[..2]);
+    let undo = d.undo_len();
+    d.right_click(&key_id(&d, &keys[2]));
     d.click("effectControls.keyframeMenu.clear");
-    let scale = d.scale(&clip).0;
-    let position = d.parameter(&clip, "motion", "position").keyframes.len();
-    assert_eq!((scale.len(), position), (1, 1), "2 of 3 keyframes remain: {scale:?}");
-    assert!(!scale.contains(&time), "the right-clicked Scale keyframe is the one deleted");
+    assert!(d.parameter(&clip, "motion", "rotation").keyframes.is_empty(), "the clicked keyframe is the one deleted");
+    assert_eq!(d.parameter(&clip, "motion", "scale").keyframes.len(), 2, "the selected group is left alone");
+    assert_eq!(d.undo_len(), undo + 1, "deleting the clicked keyframe is one undo step");
 }
