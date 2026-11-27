@@ -892,8 +892,12 @@ fn pair_p(p: &Value, k: &str) -> Option<(f64, f64)> {
     Some((a.first()?.as_f64()?.clamp(0.0, 50.0), a.get(1)?.as_f64()?.clamp(0.0, 50.0)))
 }
 
-pub const RENDERER_GPU: &str = "FilmCraft GPU Acceleration (wgpu)";
-pub const RENDERER_SOFTWARE: &str = "FilmCraft Software Only (CPU)";
+pub const RENDERER_GPU: &str = "Trackline GPU Acceleration (wgpu)";
+pub const RENDERER_SOFTWARE: &str = "Trackline Software Only (CPU)";
+/// Renderer names written by FilmCraft builds before the fork renamed them; kept so projects made
+/// with them still load.
+const RENDERER_GPU_LEGACY: &str = "FilmCraft GPU Acceleration (wgpu)";
+const RENDERER_SOFTWARE_LEGACY: &str = "FilmCraft Software Only (CPU)";
 
 fn general_json(st: &filmcraft_project::ProjectSettings) -> Value {
     json!({
@@ -915,6 +919,8 @@ fn project_settings_general(s: &mut Session, p: &Value) -> Result<Value> {
             "gpu" => RENDERER_GPU.into(),
             "software" | "cpu" => RENDERER_SOFTWARE.into(),
             _ if r == RENDERER_GPU || r == RENDERER_SOFTWARE => r.into(),
+            _ if r == RENDERER_GPU_LEGACY => RENDERER_GPU.into(),
+            _ if r == RENDERER_SOFTWARE_LEGACY => RENDERER_SOFTWARE.into(),
             _ => return Err(bad(cmd, "`renderer` is gpu or software")),
         };
     }
