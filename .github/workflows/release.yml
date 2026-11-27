@@ -1,0 +1,237 @@
+name: Release
+
+# Build every Trackline release artifact and publish it, with SHA256SUMS.txt, as a GitHub Release.
+#
+# This is the repository's only workflow: the shared craft-common-actions CI and release workflows
+# were removed, because a fork neither has nor should need ArtCraft's signing secrets and service
+# dispatch token. Packaging scripts live in `packaging/`; this workflow only drives them.
+#
+#   * Push a tag `vX.Y.Z` to cut a release for that tag.
+#   * "Run workflow" builds a release for Cargo.toml's version (or the version you type).
+#
+# Release assets:
+#   trackline-v<version>-macos-x64.dmg             macOS 11+ (Intel)
+#   trackline-v<version>-macos-arm64.dmg           macOS 11+ (Apple silicon)
+#   trackline-v<version>-windows-x64.msi           Windows 10+ per-machine installer
+#   trackline-v<version>-windows-x64-portable.zip  Windows 10+ portable
+#   trackline-v<version>-linux-x64.AppImage        Linux (glibc >= 2.35)
+#   trackline-v<version>-linux-x64.tar.gz          Linux standalone tree
+#   SHA256SUMS.txt                                 sha256 of every asset above
+#
+# Signing is optional: set APPLE_CERTIFICATE / APPLE_CERTIFICATE_PASSWORD / KEYCHAIN_PASSWORD and
+# APPLE_ID / APPLE_PASSWORD / APPLE_TEAM_ID, or WINDOWS_CERTIFICATE / WINDOWS_CERTIFICATE_PASSWORD
+# (or the AZURE_* Trusted Signing variables). Without them the builds are unsigned and the macOS
+# DMG is ad-hoc signed only (Gatekeeper will reject it on other Macs).
+
+on:
+  push:
+    tags: ["v*"]
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "Version to build, without the leading v (empty: read Cargo.toml)"
+        type: string
+        default: ""
+
+permissions:
+  contents: read
+
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: false
+
+env:
+  # Optional CJK/fallback fonts the build embeds when CRAFT_FONTS_DIR points at a checkout; the
+  # same revision the previous release workflow used.
+  CRAFT_FONTS_REF: b076417b5880bd4154bd22f00695b1d28c6bea83
+
+jobs:
+  version:
+    name: Resolve version
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.resolve.outputs.version }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - id: resolve
+        name: Read the version
+        shell: bash
+        env:
+          INPUT_VERSION: ${{ inputs.version }}
+        run: |
+          set -euo pipefail
+          v="${INPUT_VERSION#v}"
+          if [[ -z "$v" && "${GITHUB_REF_TYPE}" == "tag" ]]; then v="${GITHUB_REF_NAME#v}"; fi
+          if [[ -z "$v" ]]; then
+            v="$(awk '/^\[/ { in_pkg = ($0 == "[workspace.package]"); next } in_pkg && $1 == "version" { gsub(/[" ]/, "", $3); print $3; exit }' Cargo.toml)"
+          fi
+          [[ -n "$v" ]] || { echo "error: could not resolve the version" >&2; exit 1; }
+          echo "version=$v" >>"$GITHUB_OUTPUT"
+          echo "Trackline $v"
+
+  linux:
+    name: Linux x64
+    needs: version
+    runs-on: ubuntu-22.04
+    timeout-minutes: 180
+    env:
+      FILMCRAFT_VERSION: ${{ needs.version.outputs.version }}
+      CRAFT_FONTS_DIR: ${{ github.workspace }}/craft-fonts
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Check out craft-fonts
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          repository: storytold/craft-fonts
+          ref: ${{ env.CRAFT_FONTS_REF }}
+          path: craft-fonts
+      - name: Install system dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends \
+            pkg-config libxkbcommon-dev libwayland-dev libx11-dev libxcb1-dev \
+            libxcursor-dev libxrandr-dev libxi-dev libfontconfig1-dev libfreetype-dev \
+            libasound2-dev libvulkan1 mesa-vulkan-drivers curl
+      - name: Package (AppImage, tar.gz)
+        run: packaging/linux/package.sh --formats "appimage tar"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: linux-x64
+          path: |
+            dist/release/trackline-*-linux-x86_64.AppImage
+            dist/release/trackline-*-linux-x86_64.tar.gz
+          if-no-files-found: error
+
+  windows:
+    name: Windows x64
+    needs: version
+    runs-on: windows-latest
+    timeout-minutes: 180
+    env:
+      FILMCRAFT_VERSION: ${{ needs.version.outputs.version }}
+      CRAFT_FONTS_DIR: ${{ github.workspace }}\craft-fonts
+      WINDOWS_CERTIFICATE: ${{ secrets.WINDOWS_CERTIFICATE }}
+      WINDOWS_CERTIFICATE_PASSWORD: ${{ secrets.WINDOWS_CERTIFICATE_PASSWORD }}
+      AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
+      AZURE_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
+      AZURE_CLIENT_SECRET: ${{ secrets.AZURE_CLIENT_SECRET }}
+      AZURE_SIGNING_ENDPOINT: ${{ secrets.AZURE_SIGNING_ENDPOINT }}
+      AZURE_SIGNING_ACCOUNT: ${{ secrets.AZURE_SIGNING_ACCOUNT }}
+      AZURE_CERT_PROFILE: ${{ secrets.AZURE_CERT_PROFILE }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Check out craft-fonts
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          repository: storytold/craft-fonts
+          ref: ${{ env.CRAFT_FONTS_REF }}
+          path: craft-fonts
+      - name: Install WiX v5
+        shell: pwsh
+        run: |
+          dotnet tool install --global wix --version 5.0.2
+          "$env:USERPROFILE\.dotnet\tools" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
+      - name: Package (MSI, portable zip)
+        shell: pwsh
+        run: packaging/windows/package.ps1 -Arch x64
+      - uses: actions/upload-artifact@v4
+        with:
+          name: windows-x64
+          path: |
+            dist/release/trackline-*-windows-x64.msi
+            dist/release/trackline-*-windows-x64-portable.zip
+          if-no-files-found: error
+
+  macos:
+    name: macOS ${{ matrix.arch }}
+    needs: version
+    runs-on: macos-14
+    timeout-minutes: 180
+    strategy:
+      fail-fast: false
+      matrix:
+        arch: [aarch64, x86_64]
+    env:
+      FILMCRAFT_VERSION: ${{ needs.version.outputs.version }}
+      CRAFT_FONTS_DIR: ${{ github.workspace }}/craft-fonts
+      APPLE_CERTIFICATE: ${{ secrets.APPLE_CERTIFICATE }}
+      APPLE_CERTIFICATE_PASSWORD: ${{ secrets.APPLE_CERTIFICATE_PASSWORD }}
+      KEYCHAIN_PASSWORD: ${{ secrets.KEYCHAIN_PASSWORD }}
+      APPLE_ID: ${{ secrets.APPLE_ID }}
+      APPLE_PASSWORD: ${{ secrets.APPLE_PASSWORD }}
+      APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Check out craft-fonts
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          repository: storytold/craft-fonts
+          ref: ${{ env.CRAFT_FONTS_REF }}
+          path: craft-fonts
+      - name: Add the Rust target
+        run: rustup target add ${{ matrix.arch }}-apple-darwin
+      - name: Import the signing certificate (skipped without secrets)
+        run: packaging/macos/import-cert.sh
+      - name: Package (dmg)
+        run: packaging/macos/package.sh --arch ${{ matrix.arch }}
+      - uses: actions/upload-artifact@v4
+        with:
+          name: macos-${{ matrix.arch }}
+          path: dist/release/trackline-*-macos-${{ matrix.arch }}.dmg
+          if-no-files-found: error
+
+  publish:
+    name: Publish release
+    needs: [version, linux, windows, macos]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    env:
+      VERSION: ${{ needs.version.outputs.version }}
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          path: dist
+          merge-multiple: true
+      - name: Rename to the release scheme
+        shell: bash
+        run: |
+          set -euo pipefail
+          cd dist
+          mv "trackline-$VERSION-linux-x86_64.AppImage"    "trackline-v$VERSION-linux-x64.AppImage"
+          mv "trackline-$VERSION-linux-x86_64.tar.gz"      "trackline-v$VERSION-linux-x64.tar.gz"
+          mv "trackline-$VERSION-windows-x64.msi"          "trackline-v$VERSION-windows-x64.msi"
+          mv "trackline-$VERSION-windows-x64-portable.zip" "trackline-v$VERSION-windows-x64-portable.zip"
+          mv "trackline-$VERSION-macos-x86_64.dmg"         "trackline-v$VERSION-macos-x64.dmg"
+          mv "trackline-$VERSION-macos-aarch64.dmg"        "trackline-v$VERSION-macos-arm64.dmg"
+          ls -lh
+      - name: Write SHA256SUMS.txt
+        shell: bash
+        run: |
+          set -euo pipefail
+          cd dist
+          sha256sum trackline-* > SHA256SUMS.txt
+          cat SHA256SUMS.txt
+      - name: Create or update the GitHub Release
+        shell: bash
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          tag="v$VERSION"
+          if gh release view "$tag" >/dev/null 2>&1; then
+            echo "release $tag already exists; replacing its assets"
+          elif [[ "${GITHUB_REF_TYPE}" == "tag" ]]; then
+            gh release create "$tag" --title "Trackline $tag" --notes "Trackline $tag"
+          else
+            gh release create "$tag" --title "Trackline $tag" --notes "Trackline $tag" --target "$GITHUB_SHA"
+          fi
+          gh release upload "$tag" dist/* --clobber
