@@ -32,7 +32,7 @@ The artwork was supplied for the Trackline fork as `plan/icon.svg`. Licence: [LI
 | `trackline-1024.png` | 1024 px render |
 | `trackline-macos-512.png` | runtime Dock icon on macOS (embedded by `apps/filmcraft/src/main.rs`) |
 | `trackline.icns` | macOS bundle icon (`CFBundleIconFile`; the bundle copies it over `FilmCraft.icns`) |
-| `trackline.ico` | Windows icon, 16–256 px (embedded in `filmcraft.exe` by `apps/filmcraft/build.rs`) |
+| `trackline.ico` | Windows icon, 16–256 px (embedded in `trackline.exe` by `apps/filmcraft/build.rs`) |
 | `hicolor/<size>/apps/ru.illoprin.trackline.png`, `hicolor/scalable/…svg` | Linux icon theme, used by `packaging/linux/ru.illoprin.trackline.desktop` |
 
 The web app's `apps/filmcraft-web/web/favicon.png` (128 px) comes from the same artwork.
