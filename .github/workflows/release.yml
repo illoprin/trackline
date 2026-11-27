@@ -9,6 +9,10 @@ name: Release
 #   * Push a tag `vX.Y.Z` to cut a release for that tag.
 #   * "Run workflow" builds a release for Cargo.toml's version (or the version you type).
 #
+# A `check` job runs `cargo fmt --all --check` and the whole test suite (nextest + doctests) on
+# Ubuntu 22.04; it must pass before the release is published, while the platform builds run in
+# parallel with it.
+#
 # Release assets:
 #   trackline-v<version>-macos-x64.dmg             macOS 11+ (Intel)
 #   trackline-v<version>-macos-arm64.dmg           macOS 11+ (Apple silicon)
@@ -70,6 +74,44 @@ jobs:
           [[ -n "$v" ]] || { echo "error: could not resolve the version" >&2; exit 1; }
           echo "version=$v" >>"$GITHUB_OUTPUT"
           echo "Trackline $v"
+
+  check:
+    name: Format and tests
+    needs: version
+    runs-on: ubuntu-22.04
+    timeout-minutes: 240
+    env:
+      CRAFT_FONTS_DIR: ${{ github.workspace }}/craft-fonts
+      # Match the gate the upstream project ran: a missing GPU or ffmpeg is an error, not a skip.
+      FILMCRAFT_REQUIRE_GPU: "1"
+      FILMCRAFT_REQUIRE_ORACLES: "1"
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Check out craft-fonts
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          repository: storytold/craft-fonts
+          ref: ${{ env.CRAFT_FONTS_REF }}
+          path: craft-fonts
+      - name: Install system dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends \
+            pkg-config libxkbcommon-dev libwayland-dev libx11-dev libxcb1-dev \
+            libxcursor-dev libxrandr-dev libxi-dev libfontconfig1-dev libfreetype-dev \
+            libasound2-dev libvulkan1 mesa-vulkan-drivers ffmpeg
+      - name: Install rustfmt
+        run: rustup component add rustfmt
+      - name: Install cargo-nextest
+        run: cargo install cargo-nextest --version 0.9.150 --locked
+      - name: Format check
+        run: cargo fmt --all --check
+      - name: Tests
+        run: cargo nextest run --workspace --lib --bins --tests --no-fail-fast
+      - name: Doctests
+        run: cargo test --workspace --doc
 
   linux:
     name: Linux x64
@@ -190,7 +232,7 @@ jobs:
 
   publish:
     name: Publish release
-    needs: [version, linux, windows, macos]
+    needs: [version, check, linux, windows, macos]
     runs-on: ubuntu-latest
     permissions:
       contents: write
