@@ -160,7 +160,7 @@ export CARGO_TARGET_DIR=target/agent-hevc     # separate build dir, no lock figh
 - The workspace includes `crates/*` and `apps/*` by glob, so one broken `Cargo.toml` breaks every
   build. Keep every manifest valid at all times, including half-finished crates.
 - Test fixtures always go to `<repo>/target/fixtures/`, whatever `CARGO_TARGET_DIR` says.
-- `.mcp.json` points at `target/release/filmcraft-cli`. With a custom target dir, use your own path.
+- `.mcp.json` points at `target/release/trackline-cli`. With a custom target dir, use your own path.
 
 ## 6. How to add…
 
@@ -188,7 +188,7 @@ export CARGO_TARGET_DIR=target/agent-hevc     # separate build dir, no lock figh
    case.
 3. Frontend-only actions (tools, zoom, panels) go in `UI_COMMANDS` in
    `crates/ui-egui/src/menus.rs` with a branch in `menus::invoke`.
-4. The command now appears in menus (from `menu`), shortcuts, `filmcraft-cli commands`,
+4. The command now appears in menus (from `menu`), shortcuts, `trackline-cli commands`,
    `engine.commands` and MCP `command_list` without further work.
 
 **Move identity uniqueness.** A move plan lists each clip identity at most once. The core move operation rejects repeated ids before mutation or id allocation; placing one identity on multiple tracks makes selection and later identity-based editing ambiguous. Copies receive new ids and retain each entry's requested destination. Destination track creation and the edit commit together. In an idle session, a rejected duplicate move retains the project and its undo and redo history. Selection-derived edit plans keep each identity once in first-occurrence order before expanding linked partners; explicit move requests with repeated identities are still rejected.

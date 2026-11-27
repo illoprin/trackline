@@ -49,7 +49,7 @@ clustering per-chunk MFCC statistics (`filmcraft_speech::diarize`); no model is 
 
 Both are **optional features**, off by default and never built for the web:
 
-- `whisper` (on `filmcraft-speech`, `filmcraft-engine`, and the `filmcraft` / `filmcraft-cli`
+- `whisper` (on `filmcraft-speech`, `filmcraft-engine`, and the `filmcraft` / `trackline-cli`
   apps, where it also enables downloads): candle inference.
 - `download` (`speech-download` on the engine): HTTPS downloads with rustls + RustCrypto and the
   operating system's certificate verifier.

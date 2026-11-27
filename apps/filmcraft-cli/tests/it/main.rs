@@ -2,7 +2,7 @@ mod cli;
 mod workflows;
 
 fn filmcraft_command() -> std::process::Command {
-    let executable = std::env::var_os("NEXTEST_BIN_EXE_filmcraft_cli").unwrap_or_else(|| env!("CARGO_BIN_EXE_filmcraft-cli").into());
+    let executable = std::env::var_os("NEXTEST_BIN_EXE_trackline_cli").unwrap_or_else(|| env!("CARGO_BIN_EXE_trackline-cli").into());
     std::process::Command::new(executable)
 }
 

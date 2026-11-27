@@ -2,18 +2,30 @@
 //!
 //! Trackline is an independent fork of FilmCraft (originally by the ArtCraft team, repository
 //! `storytold/filmcraft`). It is not an official FilmCraft or ArtCraft product, so the app points
-//! at the original upstream project rather than the upstream community channels.
-
-/// The app's short name, used in repository URLs.
-pub const APP: &str = "trackline";
+//! at the fork's own project and, separately, at the original upstream project.
 
 /// The original FilmCraft project this fork is based on.
 pub const UPSTREAM: &str = "https://github.com/storytold/filmcraft";
 /// New issue on the original FilmCraft project.
 pub const UPSTREAM_ISSUES: &str = "https://github.com/storytold/filmcraft/issues";
 
+/// The Trackline project's own repository.
+pub const PROJECT: &str = "https://github.com/illoprin/trackline";
+/// New issue on the Trackline project.
+pub const ISSUES: &str = "https://github.com/illoprin/trackline/issues";
+/// Support the author (DonationAlerts).
+pub const SUPPORT: &str = "https://www.donationalerts.com/r/itwilld0";
+/// The author's YouTube channel.
+pub const YOUTUBE: &str = "https://youtube.com/@itwilIdo";
+
 /// (command id, label, url) for every link, in menu order.
-pub const ALL: [(&str, &str, &str); 2] = [("help.github", "Original FilmCraft on GitHub", UPSTREAM), ("help.reportIssue", "Report an Issue…", UPSTREAM_ISSUES)];
+pub const ALL: [(&str, &str, &str); 5] = [
+    ("help.github", "Project on GitHub", PROJECT),
+    ("help.reportIssue", "Report an Issue…", ISSUES),
+    ("help.supportAuthor", "Support the Author", SUPPORT),
+    ("help.youtube", "Author's Channel", YOUTUBE),
+    ("help.filmcraftUpstream", "Original FilmCraft on GitHub", UPSTREAM),
+];
 
 /// A link the web browser couldn't open (`ui.failedLink`): the address and the reason.
 #[derive(Clone, Debug, Default, PartialEq, serde::Serialize, serde::Deserialize)]
@@ -115,11 +127,14 @@ mod tests {
     use super::*;
 
     #[test]
-    fn urls_point_at_the_upstream_project() {
+    fn urls_point_at_the_project_and_upstream() {
         assert_eq!(UPSTREAM, "https://github.com/storytold/filmcraft");
         assert_eq!(UPSTREAM_ISSUES, format!("{UPSTREAM}/issues"));
+        assert_eq!(PROJECT, "https://github.com/illoprin/trackline");
+        assert_eq!(ISSUES, format!("{PROJECT}/issues"));
         assert!(ALL.iter().all(|(id, _, u)| id.starts_with("help.") && u.starts_with("https://")));
-        assert_eq!(url_for("help.github"), Some(UPSTREAM));
+        assert_eq!(url_for("help.github"), Some(PROJECT));
+        assert_eq!(url_for("help.filmcraftUpstream"), Some(UPSTREAM));
         assert_eq!(url_for("help.nope"), None);
     }
 
@@ -148,12 +163,12 @@ mod tests {
 
         // A failing opener falls back to `ctx.open_url` instead of losing the click.
         app.hooks.open_url = Some(Box::new(|_: &str| Err("no browser".into())));
-        open(&mut app, &ctx, UPSTREAM_ISSUES);
+        open(&mut app, &ctx, ISSUES);
         let fallback: Vec<String> =
             ctx.output(|o| o.commands.iter().filter_map(|c| if let egui::OutputCommand::OpenUrl(u) = c { Some(u.url.clone()) } else { None }).collect());
-        assert_eq!(fallback, [UPSTREAM_ISSUES]);
+        assert_eq!(fallback, [ISSUES]);
         // ... and keeps the address on screen with the reason until the dialog is closed
-        assert_eq!(app.ui.failed_link, Some(FailedLink { url: UPSTREAM_ISSUES.into(), error: "no browser".into() }));
+        assert_eq!(app.ui.failed_link, Some(FailedLink { url: ISSUES.into(), error: "no browser".into() }));
     }
 
     /// The failed-link dialog shows the address until it is closed, and Copy copies it.

@@ -190,7 +190,7 @@ unchanged.
 ## Automation
 
 Every menu item, button, slider and drag is a **command** with an id, typed parameters and an enabled
-state. There are more than 650 engine commands (`filmcraft-cli commands` lists them). The UI, the
+state. There are more than 650 engine commands (`trackline-cli commands` lists them). The UI, the
 CLI, a JSON control channel and an **MCP server** all dispatch the same commands, so Claude or any
 agent can cut, trim, grade, mix and export exactly the way a person does. Every widget also has an
 automation id, so an agent can click, drag, type and take screenshots.

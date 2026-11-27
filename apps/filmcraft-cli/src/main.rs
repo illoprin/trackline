@@ -1,10 +1,10 @@
 //! FilmCraft headless CLI: every engine command is one shell call away, for scripts and AI agents.
 //!
-//! Run `filmcraft-cli help` for the full reference (also in docs/agents.md).
+//! Run `trackline-cli help` for the full reference (also in docs/agents.md).
 
 #![cfg_attr(not(test), deny(clippy::unwrap_used, clippy::expect_used, clippy::panic, clippy::unimplemented, clippy::todo, clippy::unreachable))]
 
-/// `println!` that doesn't panic when stdout is closed (`filmcraft-cli commands | head`) with
+/// `println!` that doesn't panic when stdout is closed (`trackline-cli commands | head`) with
 /// "failed printing to stdout: Broken pipe (os error 32)". Once stdout has failed, later output is
 /// dropped and the work goes on: see `stdout_failed`.
 macro_rules! outln {
@@ -57,15 +57,15 @@ fn stdout_failed(e: std::io::Error) {
     if STDOUT_GONE.swap(true, Ordering::Relaxed) || e.kind() == std::io::ErrorKind::BrokenPipe {
         return;
     }
-    diag(format_args!("filmcraft-cli: can't write to stdout: {e}"));
+    diag(format_args!("trackline-cli: can't write to stdout: {e}"));
     STDOUT_ERROR.store(true, Ordering::Relaxed);
 }
 
 const HELP: &str = "\
-filmcraft-cli: drive Trackline from the shell (headless engine, or the live app with --bridge)
+trackline-cli: drive Trackline from the shell (headless engine, or the live app with --bridge)
 
 USAGE
-  filmcraft-cli [OPTIONS] <SUBCOMMAND> [ARGS]
+  trackline-cli [OPTIONS] <SUBCOMMAND> [ARGS]
 
 SUBCOMMANDS
   exec <id> [key=value ...]     run one command; prints its result as JSON
@@ -135,7 +135,7 @@ fn diag(msg: std::fmt::Arguments) {
 }
 
 fn usage(msg: impl std::fmt::Display) -> ! {
-    diag(format_args!("filmcraft-cli: {msg}\nRun `filmcraft-cli help` for usage."));
+    diag(format_args!("trackline-cli: {msg}\nRun `trackline-cli help` for usage."));
     std::process::exit(2)
 }
 
@@ -159,7 +159,7 @@ async fn write_file(path: impl Into<std::path::PathBuf>, data: Vec<u8>) -> std::
 }
 
 fn fail(msg: impl std::fmt::Display) -> ! {
-    diag(format_args!("filmcraft-cli: {msg}"));
+    diag(format_args!("trackline-cli: {msg}"));
     std::process::exit(1)
 }
 
@@ -318,7 +318,7 @@ async fn main() {
 async fn cli() {
     // `std::env::args` panics on an argument that is not Unicode (a Linux file name in Latin-1)
     let a = Args::parse(std::env::args_os().skip(1).map(|a| a.to_string_lossy().into_owned()));
-    // `--help` anywhere (`filmcraft-cli --help`, `filmcraft-cli export --help`) prints the reference:
+    // `--help` anywhere (`trackline-cli --help`, `trackline-cli export --help`) prints the reference:
     // the parser takes it as a flag option, so it never reaches the subcommand match.
     if a.flag("--help") {
         out!("{HELP}");
@@ -326,7 +326,7 @@ async fn cli() {
     }
     // `--version` anywhere and `-V` as the subcommand, also after global options (`--demo --version`, #710).
     if a.wants_version() {
-        outln!("filmcraft-cli {}", env!("CARGO_PKG_VERSION"));
+        outln!("trackline-cli {}", env!("CARGO_PKG_VERSION"));
         return;
     }
     register_hardware_decoders();
@@ -334,7 +334,7 @@ async fn cli() {
     let Some(cmd) = a.pos(0) else { usage("missing subcommand") };
     match cmd {
         "help" | "-h" => out!("{HELP}"),
-        "version" => outln!("filmcraft-cli {}", env!("CARGO_PKG_VERSION")),
+        "version" => outln!("trackline-cli {}", env!("CARGO_PKG_VERSION")),
         "probe" => cli_probe(&a).await,
         "bench-decode" => cli_bench_decode(&a).await,
         "commands" | "describe" => cli_commands(&a, cmd).await,
@@ -381,7 +381,7 @@ async fn cli_commands(a: &Args, cmd: &str) {
         let id = a.pos(1).unwrap_or_else(|| usage("describe <id>"));
         match list.iter().find(|c| c["id"] == id) {
             Some(c) => print(a, c),
-            None => fail(format!("unknown command `{id}` (try `filmcraft-cli commands {id}`)")),
+            None => fail(format!("unknown command `{id}` (try `trackline-cli commands {id}`)")),
         }
         return;
     }
@@ -530,10 +530,10 @@ async fn cli_export(a: &Args) {
             print(a, &v);
             let written = written_paths(&v, out).join(", ");
             for warning in v.get("warnings").and_then(Value::as_array).into_iter().flatten().filter_map(Value::as_str) {
-                diag(format_args!("filmcraft-cli: warning: {warning} (CLI: --range entire)"));
+                diag(format_args!("trackline-cli: warning: {warning} (CLI: --range entire)"));
             }
             for warning in export_warnings(&v) {
-                diag(format_args!("filmcraft-cli: warning: {warning}"));
+                diag(format_args!("trackline-cli: warning: {warning}"));
             }
             check_offline(a, &offline_media(&v), &format!("export: {written}"));
             diag(format_args!("exported {written} in {:.1}s", t0.elapsed().as_secs_f64()));
@@ -626,7 +626,7 @@ fn export_warnings(result: &Value) -> Vec<&str> {
 /// One stderr line per offline item that rendered as placeholder frames (#1054).
 fn offline_warning(offline: &[Value]) -> String {
     let s = |o: &Value, k: &str| o.get(k).and_then(Value::as_str).unwrap_or("").to_string();
-    let mut msg = format!("filmcraft-cli: warning: {} offline media item(s) rendered as placeholder frames:", offline.len());
+    let mut msg = format!("trackline-cli: warning: {} offline media item(s) rendered as placeholder frames:", offline.len());
     for o in offline {
         let id = o.get("item").and_then(Value::as_u64).map(|i| i.to_string()).unwrap_or_default();
         msg.push_str(&format!("\n  item {id} {} ({}): {}", s(o, "name"), s(o, "status"), s(o, "path")));
@@ -801,7 +801,7 @@ mod format_tests {
         assert_eq!(super::absolute(""), "");
         #[cfg(unix)]
         {
-            let dir = std::env::temp_dir().join(format!("filmcraft-cli-abs-{}", std::process::id()));
+            let dir = std::env::temp_dir().join(format!("trackline-cli-abs-{}", std::process::id()));
             std::fs::create_dir_all(&dir).unwrap();
             std::fs::write(dir.join("real.mov"), b"x").unwrap();
             let link = dir.join("link.mov");

@@ -1,11 +1,11 @@
-//! The desktop app's command line (`filmcraft --help`).
+//! The desktop app's command line (`trackline --help`).
 
 use std::ffi::OsString;
 use std::path::{Path, PathBuf};
 
-/// `filmcraft --help`.
+/// `trackline --help`.
 pub const USAGE: &str = "\
-Usage: filmcraft [options] [project.fcproj | media files...]
+Usage: trackline [options] [project.fcproj | media files...]
 
 Options:
   --control <port>   start the localhost JSON-lines control server

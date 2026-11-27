@@ -93,11 +93,11 @@ fn community_links_everywhere() {
     // Header: no community button; the links live in Help, About and Home.
     assert!(d.ids("header.discord").is_empty());
     d.snapshot("header");
-    // About dialog: the upstream project, then its issue tracker.
+    // About dialog: every project link as a big icon with a blue link below.
     d.ok("engine.execute", json!({"command": "app.about", "params": {}}));
     d.frames(3);
     let about = d.ids("about.");
-    for id in ["about.github", "about.reportIssue"] {
+    for id in ["about.github", "about.reportIssue", "about.support", "about.youtube"] {
         assert!(about.iter().any(|a| a == id), "{id} in {about:?}");
     }
     d.snapshot("about");
@@ -108,7 +108,7 @@ fn community_links_everywhere() {
     d.ok("engine.execute", json!({"command": "mode.import", "params": {}}));
     d.frames(3);
     let home = d.ids("import.link.");
-    for id in ["import.link.github", "import.link.reportIssue"] {
+    for id in ["import.link.github", "import.link.reportIssue", "import.link.supportAuthor", "import.link.youtube", "import.link.filmcraftUpstream"] {
         assert!(home.iter().any(|a| a == id), "{id} in {home:?}");
     }
     d.snapshot("home");

@@ -981,6 +981,19 @@
       "binary_deleted": 0,
       "first_commit": null,
       "last_commit": null
+    },
+    {
+      "login": "illoprin",
+      "people_entry": true,
+      "github_name": "illoprin",
+      "prs": 0,
+      "commits": 65,
+      "lines_added": 11858,
+      "lines_deleted": 1849,
+      "binary_added": 0,
+      "binary_deleted": 0,
+      "first_commit": "2026-10-23T19:32:44Z",
+      "last_commit": "2026-11-27T06:29:51Z"
     }
   ],
   "models": [
@@ -1037,6 +1050,15 @@
       "commits": 1,
       "lines_added": 1632,
       "lines_deleted": 3
+    },
+    {
+      "id": "deepseek/v4.1-flash",
+      "company": "DeepSeek",
+      "model": "DeepSeek v4.1 Flash",
+      "version": "",
+      "commits": 6,
+      "lines_added": 900,
+      "lines_deleted": 120
     }
   ]
 }

@@ -35,8 +35,8 @@ jobs:
     uses: storytold/craft-common-actions/.github/workflows/release.yml@main
     with:
       dry-run: ${{ github.event_name == 'schedule' }}
-      app-name: filmcraft
-      app-title: FilmCraft
+      app-name: trackline
+      app-title: Trackline
       craft-fonts-ref: b076417b5880bd4154bd22f00695b1d28c6bea83
       web-craft-fonts: true
       version: ${{ inputs.version }}

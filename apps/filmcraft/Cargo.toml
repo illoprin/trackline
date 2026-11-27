@@ -1,11 +1,16 @@
 [package]
 name = "filmcraft"
-description = "FilmCraft desktop app"
+description = "Trackline desktop app (an independent fork of FilmCraft)"
 version.workspace = true
 edition.workspace = true
 license.workspace = true
-default-run = "filmcraft"
+default-run = "trackline"
 build = "build.rs"
+
+# The package/crate stays `filmcraft` for upstream compatibility; the binary is the Trackline one.
+[[bin]]
+name = "trackline"
+path = "src/main.rs"
 
 [lints]
 workspace = true

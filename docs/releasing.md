@@ -6,7 +6,7 @@ the web build, and creates or updates a **draft**
 GitHub Release named `FilmCraft v<version>`. Nobody sees a draft until a maintainer publishes it.
 
 User-facing names say **FilmCraft**. Files, binaries and ids stay lowercase
-(`filmcraft-<version>-<platform>-<arch>.<ext>`, `ru.illoprin.trackline`).
+(`trackline-<version>-<platform>-<arch>.<ext>`, `ru.illoprin.trackline`).
 
 ## Cutting a release
 
@@ -44,19 +44,19 @@ signing jobs are refused, and the draft-release job, which needs them, is skippe
 
 | Platform | Artifacts | Built on |
 |---|---|---|
-| macOS 11+ (universal: Apple silicon and Intel) | `filmcraft-<v>-macos-universal.dmg`, `filmcraft-cli-<v>-macos-universal.zip` | `macos-15` |
-| Windows x64 | `filmcraft-<v>-windows-x64.msi`, `filmcraft-<v>-windows-x64-portable.zip` | `windows-latest` |
-| Windows x86 (32-bit) | `filmcraft-<v>-windows-x86.msi`, `filmcraft-<v>-windows-x86-portable.zip` | `windows-latest` |
-| Windows on ARM64 | `filmcraft-<v>-windows-arm64.msi`, `filmcraft-<v>-windows-arm64-portable.zip` | `windows-latest` (cross-compiled) |
-| Linux x86_64 | `filmcraft-<v>-linux-x86_64.{AppImage,deb,rpm,tar.gz}` | `ubuntu-22.04` |
-| Linux aarch64 | `filmcraft-<v>-linux-aarch64.{AppImage,deb,rpm,tar.gz}` | `ubuntu-22.04-arm` |
-| Linux riscv64 | `filmcraft-<v>-linux-riscv64.tar.gz` | `ubuntu-24.04`, cross-compiled (glibc 2.39+; CLI smoke-tested under QEMU) |
-| AppImage updates | `filmcraft-<v>-linux-{x86_64,aarch64}.AppImage.zsync` | with the AppImage |
-| Flatpak | `filmcraft-<v>-linux-x86_64.flatpak`, `filmcraft-<v>-linux-aarch64.flatpak` | `ubuntu-24.04`, `ubuntu-24.04-arm` (repackaged Linux tarball) |
-| FreeBSD 14 x86_64 | `filmcraft-<v>-freebsd-x86_64.tar.gz` | FreeBSD 14.3 VM on `ubuntu-latest` |
-| Web | `filmcraft-web-<v>.zip`, a static site (see [`packaging/web/README.md`](../packaging/web/README.md)) | `ubuntu-latest` |
+| macOS 11+ (universal: Apple silicon and Intel) | `trackline-<v>-macos-universal.dmg`, `trackline-cli-<v>-macos-universal.zip` | `macos-15` |
+| Windows x64 | `trackline-<v>-windows-x64.msi`, `trackline-<v>-windows-x64-portable.zip` | `windows-latest` |
+| Windows x86 (32-bit) | `trackline-<v>-windows-x86.msi`, `trackline-<v>-windows-x86-portable.zip` | `windows-latest` |
+| Windows on ARM64 | `trackline-<v>-windows-arm64.msi`, `trackline-<v>-windows-arm64-portable.zip` | `windows-latest` (cross-compiled) |
+| Linux x86_64 | `trackline-<v>-linux-x86_64.{AppImage,deb,rpm,tar.gz}` | `ubuntu-22.04` |
+| Linux aarch64 | `trackline-<v>-linux-aarch64.{AppImage,deb,rpm,tar.gz}` | `ubuntu-22.04-arm` |
+| Linux riscv64 | `trackline-<v>-linux-riscv64.tar.gz` | `ubuntu-24.04`, cross-compiled (glibc 2.39+; CLI smoke-tested under QEMU) |
+| AppImage updates | `trackline-<v>-linux-{x86_64,aarch64}.AppImage.zsync` | with the AppImage |
+| Flatpak | `trackline-<v>-linux-x86_64.flatpak`, `trackline-<v>-linux-aarch64.flatpak` | `ubuntu-24.04`, `ubuntu-24.04-arm` (repackaged Linux tarball) |
+| FreeBSD 14 x86_64 | `trackline-<v>-freebsd-x86_64.tar.gz` | FreeBSD 14.3 VM on `ubuntu-latest` |
+| Web | `trackline-web-<v>.zip`, a static site (see [`packaging/web/README.md`](../packaging/web/README.md)) | `ubuntu-latest` |
 
-`filmcraft --version` and `filmcraft-cli --version` print the version from `Cargo.toml`.
+`filmcraft --version` and `trackline-cli --version` print the version from `Cargo.toml`.
 
 **Fonts.** Every build job checks out [craft-fonts](https://github.com/storytold/craft-fonts) at a
 pinned commit (`craft-fonts-ref` in `.github/workflows/release.yml` and `freebsd.yml`) and builds
@@ -77,7 +77,7 @@ deliberately, in every job at once.
   `packaging/macos/import-cert.sh`.
 - **Notarization:** the app is sent with `xcrun notarytool submit`, then the ticket is stapled
   and checked with `stapler validate`. The app goes on a DMG (`hdiutil makehybrid`), which is
-  signed and notarized too. The universal `filmcraft-cli` is signed the same way, zipped, and the zip is notarized.
+  signed and notarized too. The universal `trackline-cli` is signed the same way, zipped, and the zip is notarized.
   Its Finder window (background, icon size and positions) comes from
   [`packaging/macos/dmg/`](../packaging/macos/dmg/README.md), and its volume is named `FilmCraft`
   without the version, which the window's background needs; the DMG file name keeps the version.
@@ -96,7 +96,7 @@ nor the portable zip needs the Visual C++ redistributable.
   an App Paths entry (Win+R `filmcraft`). Same-version upgrades are allowed, so release candidates
   replace each other.
 - The ARM64 build is cross-compiled on the x64 runner. `.github/workflows/windows-arm64.yml`
-  installs that MSI on a Windows 11 ARM64 runner, runs `filmcraft-cli --version` natively and
+  installs that MSI on a Windows 11 ARM64 runner, runs `trackline-cli --version` natively and
   uninstalls.
 - **Signing:** `packaging/windows/sign.ps1` signs the executables and then the `.msi` with
   `signtool`, using whichever material is present: a `.pfx` certificate (`WINDOWS_CERTIFICATE`,
@@ -127,7 +127,7 @@ After packaging, the job prints the `.deb`'s metadata and contents, runs `ldd` o
 runs each AppImage with `--version`.
 
 **AppImage updates.** Each AppImage embeds update information,
-`gh-releases-zsync|storytold|filmcraft|latest|filmcraft-*-linux-<arch>.AppImage.zsync`, and
+`gh-releases-zsync|illoprin|trackline|latest|trackline-*-linux-<arch>.AppImage.zsync`, and
 `appimagetool` writes the matching `.zsync` beside it (the job installs `zsync` for
 `zsyncmake`). [AppImageUpdate](https://github.com/AppImageCommunity/AppImageUpdate) and
 AppImageLauncher then fetch only the changed blocks from the newest published (non-pre-release)
@@ -136,22 +136,22 @@ release. The job checks both with `--appimage-updateinformation` and `test -s`.
 **Flatpak.** The `flatpak` jobs (x86_64 on `ubuntu-24.04`, aarch64 on `ubuntu-24.04-arm`) run
 `packaging/linux/flatpak-bundle.sh` on the Linux job's tarball: it installs the binaries with
 `packaging/linux/flatpak/ru.illoprin.trackline.bundle.yml` into a single-file bundle,
-`filmcraft-<v>-linux-<arch>.flatpak` (no Rust build, so it takes a minute), then installs it and
-runs `filmcraft-cli --version` in the sandbox. Users install it with
+`trackline-<v>-linux-<arch>.flatpak` (no Rust build, so it takes a minute), then installs it and
+runs `trackline-cli --version` in the sandbox. Users install it with
 `flatpak install --user <file>`; the freedesktop runtime comes from Flathub.
 `packaging/linux/flatpak/ru.illoprin.trackline.yml` is the from-source manifest for a Flathub
 submission (its header says how to build it). Both manifests must keep the same runtime and
-`finish-args`, and install the same programs: the app and `filmcraft-cli`, which runs the
+`finish-args`, and install the same programs: the app and `trackline-cli`, which runs the
 headless commands and the MCP server in the sandbox
-(`flatpak run --command=filmcraft-cli ru.illoprin.trackline mcp`). packaging-lint checks this.
+(`flatpak run --command=trackline-cli ru.illoprin.trackline mcp`). packaging-lint checks this.
 
 ### FreeBSD
 
 GitHub has no FreeBSD runners, so the `freebsd` job builds in a FreeBSD 14.3 VM
 ([vmactions/freebsd-vm](https://github.com/vmactions/freebsd-vm), pinned by commit) on
 `ubuntu-latest`. `packaging/freebsd/package.sh` builds both programs and packs a
-`/usr/local`-style tree as `filmcraft-<v>-freebsd-x86_64.tar.gz`; install it with
-`tar -xzf filmcraft-<v>-freebsd-x86_64.tar.gz --strip-components 1 -C /usr/local`. The build needs
+`/usr/local`-style tree as `trackline-<v>-freebsd-x86_64.tar.gz`; install it with
+`tar -xzf trackline-<v>-freebsd-x86_64.tar.gz --strip-components 1 -C /usr/local`. The build needs
 the packages listed in the job (winit/wgpu, GTK 3 for the file dialogs, fontconfig, and
 `alsa-lib` for audio through cpal). `.github/workflows/freebsd.yml` builds and packages the same
 way nightly, so a FreeBSD break shows up before a release. `package.sh --dry-run` checks the

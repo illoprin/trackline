@@ -3,9 +3,9 @@ categories = ["AudioVideo", "Video", "AudioVideoEditing"]
 icon = "assets/app-icon/hicolor/256x256/apps/ru.illoprin.trackline.png"
 
 [linux.x86_64]
-asset = "filmcraft-{version}-linux-x86_64.tar.gz"
-exec = "filmcraft-{version}-linux-x86_64/bin/filmcraft"
+asset = "trackline-{version}-linux-x86_64.tar.gz"
+exec = "trackline-{version}-linux-x86_64/bin/trackline"
 
 [linux.aarch64]
-asset = "filmcraft-{version}-linux-aarch64.tar.gz"
-exec = "filmcraft-{version}-linux-aarch64/bin/filmcraft"
+asset = "trackline-{version}-linux-aarch64.tar.gz"
+exec = "trackline-{version}-linux-aarch64/bin/trackline"
