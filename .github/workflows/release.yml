@@ -278,11 +278,14 @@ jobs:
         run: |
           set -euo pipefail
           tag="v$VERSION"
+          # A version with a `-` (0.1.0-rc.1) is a pre-release, so it never becomes "Latest".
+          create=(gh release create "$tag" --title "Trackline $tag" --notes "Trackline $tag")
+          [[ "$VERSION" == *-* ]] && create+=(--prerelease)
           if gh release view "$tag" >/dev/null 2>&1; then
             echo "release $tag already exists; replacing its assets"
           elif [[ "${GITHUB_REF_TYPE}" == "tag" ]]; then
-            gh release create "$tag" --title "Trackline $tag" --notes "Trackline $tag"
+            "${create[@]}"
           else
-            gh release create "$tag" --title "Trackline $tag" --notes "Trackline $tag" --target "$GITHUB_SHA"
+            "${create[@]}" --target "$GITHUB_SHA"
           fi
           gh release upload "$tag" dist/* --clobber
