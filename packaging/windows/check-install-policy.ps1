@@ -55,7 +55,7 @@ try {
     if ($properties['UpgradeCode'].Trim('{}') -ne $policy.upgradeCode) { throw 'Launcher upgrade identity changed.' }
     $dirs = @{}
     foreach ($row in (Read-Rows $database 'SELECT `Directory`, `Directory_Parent`, `DefaultDir` FROM `Directory`' 3)) { $dirs[$row[0]] = @($row[1],$row[2]) }
-    if ($dirs['INSTALLFOLDER'][1] -ne 'Trackline') {
+    if (($dirs['INSTALLFOLDER'][1]).Split('|')[-1] -ne 'Trackline') {
       throw 'Launcher new-install folder must be the Trackline folder under Programs.'
     }
     foreach ($explicit in @('', 'F:\Chosen exact launcher')) {
@@ -86,7 +86,7 @@ try {
   foreach ($row in (Read-Rows $database 'SELECT `Directory`, `Directory_Parent`, `DefaultDir` FROM `Directory`' 3)) {
     $directories[$row[0]] = @($row[1], $row[2])
   }
-  if ($directories['INSTALLFOLDER'][1] -ne 'Trackline') { throw 'Expected the Trackline install folder.' }
+  if (($directories['INSTALLFOLDER'][1]).Split('|')[-1] -ne 'Trackline') { throw 'Expected the Trackline install folder.' }
   $programs = $directories['INSTALLFOLDER'][0]
   if ($programs -eq 'ProgramFiles6432Folder' -and $directories.ContainsKey($programs)) { $programs = $directories[$programs][0] }
   if ($programs -eq 'ProgramFiles6432Folder') { $programs = $directories[$programs][0] }
