@@ -237,9 +237,8 @@ Team and the FilmCraft contributors. Required notices are in [NOTICE](NOTICE).
 Bundled fonts, icons, images and other assets keep their own open licences; each one is listed with
 its author, source and licence in [ATTRIBUTION.md](ATTRIBUTION.md).
 
-The ArtCraft name, wordmark and logos in [`docs/brand/`](docs/brand/) are trademarks of the ArtCraft
-Team and are **not** covered by this licence. This fork does not use them; they are retained only as
-upstream provenance under [`docs/brand/LICENSE-brand.txt`](docs/brand/LICENSE-brand.txt).
+The ArtCraft name, wordmark and logos are trademarks of the ArtCraft Team and are **not** covered by
+this licence. This fork does not include them.
 
 Trackline is an independent implementation. It contains no proprietary code, icons, images, presets
 or LUTs, and no GPL or LGPL code; every icon is drawn in code and every asset is openly licensed and
