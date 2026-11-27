@@ -107,7 +107,7 @@ const ICON_DIR: &str = concat!(env!("CARGO_MANIFEST_DIR"), "/../../assets/app-ic
 /// directory spec). Untrusted environment: an empty or relative `XDG_DATA_HOME` means the
 /// default, and a missing or relative `HOME` is an error — never a guess that would write
 /// into the working directory.
-fn user_data_dir() -> Result<std::path::PathBuf, DevIconError> {
+pub(crate) fn user_data_dir() -> Result<std::path::PathBuf, DevIconError> {
     if let Some(v) = std::env::var_os("XDG_DATA_HOME")
         && !v.is_empty()
         && std::path::Path::new(&v).is_absolute()
@@ -224,7 +224,7 @@ fn desktop_file_content(app_id: &str, name: &str, exe: &str) -> String {
 /// Escape `s` for the `Exec=` value's two layers, like `packaging/linux/install.sh`: first the
 /// shell layer (`` ` `` `"` `$` `\` get a backslash, and the argument is double-quoted), then
 /// the string layer of the file value (every backslash doubled).
-fn escape_exec_argument(s: &str) -> String {
+pub(crate) fn escape_exec_argument(s: &str) -> String {
     let mut shell = String::with_capacity(s.len() + 2);
     for c in s.chars() {
         if matches!(c, '`' | '"' | '$' | '\\') {
@@ -237,7 +237,7 @@ fn escape_exec_argument(s: &str) -> String {
 
 /// Everything that can keep the dev icon out of the taskbar; logged, never fatal.
 #[derive(Debug)]
-enum DevIconError {
+pub(crate) enum DevIconError {
     Io(std::io::Error),
     NoHome,
     BadExecPath,

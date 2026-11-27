@@ -23,6 +23,9 @@ Options:
                      dx12 (Windows), low-power (Linux),
                      software (Windows, Linux);
                      `--graphics default` undoes an automatic fallback
+  --install          install this build for the current user under ~/.local
+                     (binary/AppImage, desktop entry, hicolor icons) and exit;
+                     Linux only
   --version          print the version and exit
   -h, --help         print this help and exit
 ";
@@ -33,6 +36,8 @@ pub enum Cli {
     Run(Launch),
     Help,
     Version,
+    /// `--install`: install this build under `~/.local` and exit.
+    Install,
 }
 
 /// Options of a normal start.
@@ -73,13 +78,14 @@ pub fn parse(env_control_port: Option<String>, args: impl IntoIterator<Item = Os
         data_dir: None,
         graphics: None,
     };
-    let (mut help, mut version) = (false, false);
+    let (mut help, mut version, mut install) = (false, false, false);
     let mut args = args.into_iter();
     while let Some(raw) = args.next() {
         let a = raw.to_string_lossy();
         match a.as_ref() {
             "-h" | "--help" => help = true,
             "--version" => version = true,
+            "--install" => install = true,
             "--control" => {
                 let port = args.next().ok_or("--control needs a port number")?;
                 let port = port.to_string_lossy();
@@ -108,6 +114,9 @@ pub fn parse(env_control_port: Option<String>, args: impl IntoIterator<Item = Os
     }
     if version {
         return Ok(Cli::Version);
+    }
+    if install {
+        return Ok(Cli::Install);
     }
     if l.control_port.is_none()
         && let Some(port) = env_control_port.as_deref().map(str::trim).filter(|p| !p.is_empty())
@@ -181,9 +190,18 @@ mod tests {
         assert_eq!(parse_args(&["--version"]), Ok(Cli::Version));
         assert_eq!(parse_args(&["--version", "--help"]), Ok(Cli::Help));
         assert_eq!(parse_args(&["a.mp4", "--version"]), Ok(Cli::Version));
-        for flag in ["--control", "--demo", "--empty", "--recover", "--no-recover", "--data-dir", "--version", "--help"] {
+        for flag in ["--control", "--demo", "--empty", "--recover", "--no-recover", "--data-dir", "--version", "--help", "--install"] {
             assert!(USAGE.contains(flag), "usage lists {flag}");
         }
+    }
+
+    /// `--install` is a flag like `--help`: it installs this build and exits instead of opening a
+    /// window, and an unknown option beside it is still an error.
+    #[test]
+    fn install_is_a_flag_that_does_not_start_the_app() {
+        assert_eq!(parse_args(&["--install"]), Ok(Cli::Install));
+        assert_eq!(parse_args(&["--install", "--empty", "a.mp4"]), Ok(Cli::Install));
+        assert_eq!(parse_args(&["--install", "--bogus"]), Err("unknown option `--bogus`".to_string()));
     }
 
     #[test]

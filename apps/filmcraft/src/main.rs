@@ -1,8 +1,9 @@
 //! Trackline desktop app (an independent fork of FilmCraft).
 //!
 //! Usage: `trackline [--control <port>] [--demo|--empty] [--recover|--no-recover] [--data-dir <dir>]
-//! [project.fcproj | media files…]`; `--help` prints the options, `--version` the version. An
-//! unknown option is an error (exit code 2), not a file to open.
+//! [--install] [project.fcproj | media files…]`; `--help` prints the options, `--version` the
+//! version, `--install` installs this build under `~/.local` (Linux standalone and AppImage) and
+//! exits. An unknown option is an error (exit code 2), not a file to open.
 //!
 //! Without a project, `--demo` or `--empty`, Settings ▸ General ▸ At Startup decides: Show Home
 //! (the demo project), Open Most Recent, or an empty project.
@@ -36,6 +37,7 @@ mod dev_icon;
 mod display;
 mod file_filters;
 mod graphics;
+mod install;
 mod logging;
 #[cfg(target_os = "macos")]
 mod native_color;
@@ -114,6 +116,16 @@ fn main() -> eframe::Result {
         }
         Ok(Cli::Version) => {
             tell(&format!("trackline {}\n", env!("CARGO_PKG_VERSION")), false);
+            return Ok(());
+        }
+        Ok(Cli::Install) => {
+            match install::install() {
+                Ok(message) => tell(&message, false),
+                Err(e) => {
+                    tell(&format!("trackline: {e}\n"), true);
+                    std::process::exit(1);
+                }
+            }
             return Ok(());
         }
         Err(e) => {
