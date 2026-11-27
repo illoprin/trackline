@@ -1,0 +1,8 @@
+asset:        ru.illoprin.trackline.png
+title:        Trackline app icon, Linux hicolor theme 512 px
+author:       illoprin (Trackline fork owner), for the Trackline project
+source:       original work supplied for the Trackline fork (plan/icon.svg)
+license:      MIT OR Apache-2.0
+license-file: assets/app-icon/LICENSE.txt
+added:        2026-11-27 by DeepSeek (agent) for the Trackline fork
+notes:        Rendered from trackline.svg by packaging/icons.sh.

@@ -1,6 +1,6 @@
 <#
 .SYNOPSIS
-  Build, sign and package FilmCraft for Windows.
+  Build, sign and package Trackline for Windows.
 
 .DESCRIPTION
   Produces, in $env:DIST (default: dist/release):
@@ -53,7 +53,7 @@ New-Item -ItemType Directory -Force -Path $Dist | Out-Null
 if (-not $env:FILMCRAFT_BUILD_SHA) { $env:FILMCRAFT_BUILD_SHA = (git -C $Root rev-parse HEAD 2>$null) }
 if (-not $env:FILMCRAFT_BUILD_DATE) { $env:FILMCRAFT_BUILD_DATE = (Get-Date).ToUniversalTime().ToString('yyyy-MM-dd') }
 
-Write-Output "FilmCraft $Version for Windows $Arch ($Target)"
+Write-Output "Trackline $Version for Windows $Arch ($Target)"
 
 if (-not $SkipBuild) {
   # Static CRT: no VC++ redistributable needed. Scoped to the target so host build scripts and
@@ -110,7 +110,7 @@ if ($env:CRAFT_FONTS_DIR) {
 $Msi = Join-Path $Dist "filmcraft-$Version-windows-$Arch.msi"
 Invoke-Native 'WiX UI extension' { wix extension add -g WixToolset.UI.wixext/5.0.2 }
 Invoke-Native 'wix build' {
-  wix build (Join-Path $PSScriptRoot 'filmcraft.wxs') -arch $Arch -ext WixToolset.UI.wixext `
+  wix build (Join-Path $PSScriptRoot 'trackline.wxs') -arch $Arch -ext WixToolset.UI.wixext `
     -d "Version=$MsiVersion" -d "BinDir=$Stage" -d "IconPath=$(Join-Path $Root 'assets\app-icon\filmcraft.ico')" `
     -d "DocsDir=$Docs" -d "HasCraftFontLicences=$HasCraftFontLicences" `
     -o $Msi
@@ -128,7 +128,7 @@ New-Item -ItemType Directory -Force -Path $Portable | Out-Null
 Copy-Item (Join-Path $Stage '*.exe') $Portable
 # The marker that makes FilmCraft keep its data in .\data next to the exe instead of %APPDATA% (#139).
 Set-Content -Encoding ascii -Path (Join-Path $Portable 'portable.txt') -Value @(
-  'FilmCraft portable: preferences, presets, logs and crash recovery are kept in the data folder',
+  'Trackline portable: preferences, presets, logs and crash recovery are kept in the data folder',
   'next to filmcraft.exe. Delete this file to use %APPDATA%\FilmCraft instead.'
 )
 foreach ($f in 'README.md', 'LICENSE', 'LICENSE-MIT', 'LICENSE-APACHE', 'NOTICE') {
