@@ -31,20 +31,17 @@ The artwork was supplied for the Trackline fork as `plan/icon.svg`. Licence: [LI
 | `trackline-small.svg` | the same drawing kept as the small/scalable variant |
 | `trackline-1024.png` | 1024 px render |
 | `trackline-macos-512.png` | runtime Dock icon on macOS (embedded by `apps/filmcraft/src/main.rs`) |
-| `trackline.icns` | macOS bundle icon (`CFBundleIconFile`; the bundle copies it over `FilmCraft.icns`) |
+| `trackline.icns` | macOS bundle icon (the bundle's `CFBundleIconFile` is `Trackline`) |
 | `trackline.ico` | Windows icon, 16–256 px (embedded in `trackline.exe` by `apps/filmcraft/build.rs`) |
 | `hicolor/<size>/apps/ru.illoprin.trackline.png`, `hicolor/scalable/…svg` | Linux icon theme, used by `packaging/linux/ru.illoprin.trackline.desktop` |
 
 The web app's `apps/filmcraft-web/web/favicon.png` (128 px) comes from the same artwork.
 
-The `filmcraft.*` files beside these are the upstream FilmCraft icon, kept for provenance only;
-Trackline does not use them (see [LICENSE.txt](LICENSE.txt)).
-
 ## How the icon reaches each OS
 
 - **macOS:** the window icon set at startup (`ViewportBuilder::with_icon`) is the Dock and app-switcher
-  icon when the app runs unbundled. The `.app` bundle points `CFBundleIconFile` at `FilmCraft.icns`,
-  which `packaging/macos/package.sh` fills with `trackline.icns`.
+  icon when the app runs unbundled. The `.app` bundle points `CFBundleIconFile` at `Trackline`, which
+  `packaging/macos/package.sh` fills with `trackline.icns`.
 - **Windows:** `build.rs` embeds `trackline.ico` as the exe's resource icon (Explorer, Start menu,
   pinned taskbar), and the runtime icon covers the window, taskbar and Alt-Tab.
 - **Linux:** the runtime icon plus `with_app_id("ru.illoprin.trackline")`, which Wayland matches to

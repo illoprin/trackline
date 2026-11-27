@@ -4,7 +4,7 @@
 //! The artwork is the fork's own logo (`plan/icon.svg`, derived to
 //! `assets/app-icon/hicolor/256x256/apps/ru.illoprin.trackline.png` by `packaging/icons.sh`). It
 //! is not an ArtCraft mark; the ArtCraft name and logos are trademarks of the ArtCraft Team and
-//! are not used by this fork (see `docs/brand/LICENSE-brand.txt`).
+//! are not used by this fork.
 
 const LOGO: &[u8] = include_bytes!("../../../assets/app-icon/hicolor/256x256/apps/ru.illoprin.trackline.png");
 
