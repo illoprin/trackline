@@ -275,17 +275,21 @@ jobs:
         shell: bash
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          # This job has no checkout, so gh cannot read the repository from a git remote.
+          GH_REPO: ${{ github.repository }}
         run: |
           set -euo pipefail
           tag="v$VERSION"
+          # This job has no checkout, so name the repository on every gh call.
+          repo="$GITHUB_REPOSITORY"
           # A version with a `-` (0.1.0-rc.1) is a pre-release, so it never becomes "Latest".
-          create=(gh release create "$tag" --title "Trackline $tag" --notes "Trackline $tag")
+          create=(gh release create "$tag" --repo "$repo" --title "Trackline $tag" --notes "Trackline $tag")
           [[ "$VERSION" == *-* ]] && create+=(--prerelease)
-          if gh release view "$tag" >/dev/null 2>&1; then
+          if gh release view "$tag" --repo "$repo" >/dev/null 2>&1; then
             echo "release $tag already exists; replacing its assets"
           elif [[ "${GITHUB_REF_TYPE}" == "tag" ]]; then
             "${create[@]}"
           else
             "${create[@]}" --target "$GITHUB_SHA"
           fi
-          gh release upload "$tag" dist/* --clobber
+          gh release upload "$tag" --repo "$repo" dist/* --clobber
