@@ -8,6 +8,8 @@ name: Release
 #
 #   * Push a tag `vX.Y.Z` to cut a release for that tag.
 #   * "Run workflow" builds a release for Cargo.toml's version (or the version you type).
+#   * "Run workflow" with `reuse_run` set to an earlier Release run id publishes that run's
+#     artifacts without rebuilding — for a retry, or to publish another tag of the same commit.
 #
 # A `check` job runs `cargo fmt --all --check` and the whole test suite (nextest + doctests) on
 # Ubuntu 22.04; it must pass before the release is published, while the platform builds run in
@@ -34,6 +36,10 @@ on:
     inputs:
       version:
         description: "Version to build, without the leading v (empty: read Cargo.toml)"
+        type: string
+        default: ""
+      reuse_run:
+        description: "Publish the artifacts of this existing Release run id without rebuilding (empty: build everything)"
         type: string
         default: ""
 
@@ -78,6 +84,7 @@ jobs:
   check:
     name: Format and tests
     needs: version
+    if: ${{ inputs.reuse_run == '' }}
     # The image the upstream gate ran on (its default): the GPU tests need a software Vulkan.
     runs-on: ubuntu-24.04
     timeout-minutes: 240
@@ -119,6 +126,7 @@ jobs:
   linux:
     name: Linux x64
     needs: version
+    if: ${{ inputs.reuse_run == '' }}
     runs-on: ubuntu-22.04
     timeout-minutes: 180
     env:
@@ -154,6 +162,7 @@ jobs:
   windows:
     name: Windows x64
     needs: version
+    if: ${{ inputs.reuse_run == '' }}
     runs-on: windows-latest
     timeout-minutes: 180
     env:
@@ -196,6 +205,7 @@ jobs:
   macos:
     name: macOS ${{ matrix.arch }}
     needs: version
+    if: ${{ inputs.reuse_run == '' }}
     strategy:
       fail-fast: false
       matrix:
@@ -242,27 +252,46 @@ jobs:
   publish:
     name: Publish release
     needs: [version, check, linux, windows, macos]
+    # With reuse_run the build jobs are skipped on purpose; otherwise every one must have passed.
+    if: ${{ always() && (inputs.reuse_run != '' || (needs.check.result == 'success' && needs.linux.result == 'success' && needs.windows.result == 'success' && needs.macos.result == 'success')) }}
     runs-on: ubuntu-latest
     permissions:
       contents: write
     env:
       VERSION: ${{ needs.version.outputs.version }}
     steps:
-      - uses: actions/download-artifact@v4
+      - name: Download this run's artifacts
+        if: ${{ inputs.reuse_run == '' }}
+        uses: actions/download-artifact@v4
         with:
           path: dist
           merge-multiple: true
+      - name: Download another run's artifacts
+        if: ${{ inputs.reuse_run != '' }}
+        shell: bash
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_REPO: ${{ github.repository }}
+          REUSE_RUN: ${{ inputs.reuse_run }}
+        run: |
+          set -euo pipefail
+          tmp="$(mktemp -d)"
+          gh run download "$REUSE_RUN" --repo "$GITHUB_REPOSITORY" --dir "$tmp"
+          mkdir -p dist
+          find "$tmp" -type f -exec mv -t dist {} +
+          ls -lh dist
       - name: Rename to the release scheme
         shell: bash
         run: |
           set -euo pipefail
           cd dist
-          mv "trackline-$VERSION-linux-x86_64.AppImage"    "trackline-v$VERSION-linux-x64.AppImage"
-          mv "trackline-$VERSION-linux-x86_64.tar.gz"      "trackline-v$VERSION-linux-x64.tar.gz"
-          mv "trackline-$VERSION-windows-x64.msi"          "trackline-v$VERSION-windows-x64.msi"
-          mv "trackline-$VERSION-windows-x64-portable.zip" "trackline-v$VERSION-windows-x64-portable.zip"
-          mv "trackline-$VERSION-macos-x86_64.dmg"         "trackline-v$VERSION-macos-x64.dmg"
-          mv "trackline-$VERSION-macos-aarch64.dmg"        "trackline-v$VERSION-macos-arm64.dmg"
+          # Glob the built names: a reused run's artifacts carry the version they were built with.
+          mv trackline-*-linux-x86_64.AppImage    "trackline-v$VERSION-linux-x64.AppImage"
+          mv trackline-*-linux-x86_64.tar.gz      "trackline-v$VERSION-linux-x64.tar.gz"
+          mv trackline-*-windows-x64.msi          "trackline-v$VERSION-windows-x64.msi"
+          mv trackline-*-windows-x64-portable.zip "trackline-v$VERSION-windows-x64-portable.zip"
+          mv trackline-*-macos-x86_64.dmg         "trackline-v$VERSION-macos-x64.dmg"
+          mv trackline-*-macos-aarch64.dmg        "trackline-v$VERSION-macos-arm64.dmg"
           ls -lh
       - name: Write SHA256SUMS.txt
         shell: bash
